@@ -1,7 +1,5 @@
 package com.simple.webui.homework;
 
-import com.sun.media.sound.InvalidDataException;
-
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -34,10 +32,10 @@ public class User
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
     public int getUserType() { return userType; }
-    public void setUserType(int type) throws InvalidDataException
+    public void setUserType(int type) throws Exception
     {
         if(type > UserType.ROOT || type < UserType.USER)
-            throw new InvalidDataException("Unknown UserType:" + type);
+            throw new Exception("Unknown UserType:" + type);
         this.userType = type;
     }
     public long getPicId() { return picId; }

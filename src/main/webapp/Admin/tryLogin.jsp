@@ -6,8 +6,8 @@
 <%
     try
     {
-        long id = Long.parseLong(request.getParameter("id"));
-        String pwd = request.getParameter("pwd");
+        long id = Long.parseLong(request.getParameter("userId"));
+        String pwd = request.getParameter("password");
         String hash = User.getStrHash(pwd);
         Connection dbSession = (Connection) application.getAttribute("dbSession");
         if(dbSession == null)
@@ -16,7 +16,7 @@
         User user = User.deserialize(dbSession,id);
         if(user == null || !user.comparePassword(hash))
         {
-            request.setAttribute("loginResult", LoginResult.UNKNOWN_PASSWORD_OR_USERID);
+            request.setAttribute("loginResult", LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID);
             RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
             dispatcher.forward(request, response);
         }
@@ -27,8 +27,10 @@
         }
 
     }
-    catch(Exception e)
+    catch(Exception ignored)
     {
-
+        request.setAttribute("loginResult", LoginResult.UNKNOWN_ERROR);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
+        dispatcher.forward(request, response);
     }
 %>
