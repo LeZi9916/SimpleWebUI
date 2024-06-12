@@ -1,4 +1,9 @@
 <%@ page import="com.simple.webui.homework.User" %>
+<%@ page import="static com.simple.webui.homework.Methods.getErrMsg" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="com.simple.webui.homework.User" %>
 <%@ page import="com.simple.webui.homework.LoginResult" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
@@ -8,6 +13,35 @@
         User user = (User) session.getAttribute("user");
         if (user != null)
             response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+    }
+%>
+<%
+    try
+    {
+        String _id = request.getParameter("userId");
+        String pwd = request.getParameter("password");
+        if(_id != null && pwd != null)
+        {
+            long id  = Long.parseLong(_id);
+            String hash = User.getStrHash(pwd);
+            Connection dbSession = (Connection) application.getAttribute("dbSession");
+            if(dbSession == null)
+                dbSession = DriverManager.getConnection("jdbc:mysql://localhost:3306/NekoWebUI", "root", "password");
+
+            User user = User.deserialize(dbSession,id);
+            if(user == null || !user.comparePassword(hash))
+                request.setAttribute("loginResult", LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID);
+            else
+            {
+                user.update(session);
+                response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+            }
+        }
+
+    }
+    catch(Exception ignored)
+    {
+        request.setAttribute("loginResult", LoginResult.UNKNOWN_ERROR);
     }
 %>
 <!DOCTYPE html>
@@ -195,105 +229,46 @@ document.body.className = document.body.className.replace('no-js', 'js');
 <div id="login">
     <div style="height:50px"></div>
     <%
-	 	Object _loginResult = request.getAttribute("loginResult");
-	    if(_loginResult != null)
-		{
-		    int loginResult = (int)_loginResult;
-            String errMsg = "";
-
-            if(loginResult == LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID)
-                errMsg = "Invalid UserID oe Password.";
-            else if(loginResult == LoginResult.REGISTER_PASSWORD_TOO_SHORT_OR_LONG)
-                errMsg = "The password length does not meet the requirement: it should be between 6 and 20 characters";
-            else if(loginResult == LoginResult.REGISTER_PASSWORD_NOT_MATCH)
-                errMsg = "ReInput password do not match";
-            else if(loginResult == LoginResult.UNKNOWN_ERROR)
-                errMsg = "Internal error";
-            %>
-                <div id="login_error" class="notice notice-error"><%=errMsg%></div>
-            <%
-		 }
+        Object _loginResult = request.getAttribute("loginResult");
+        if(_loginResult != null)
+        {
     %>
+    <div id="login_error" class="notice notice-error"><%=getErrMsg((int)_loginResult)%></div>
     <%
-        Object isRegister = request.getAttribute("isRegister");
-        if(isRegister != null && (boolean)isRegister)
-        {
-            %>
-                <h1>
-                    Register
-                </h1>
-                <form name="loginform" id="loginform" action="tryRegister.jsp" method="post">
-                    <p>
-                        <label for="user_login">用户名</label>
-                        <input type="text" name="username" id="user_login" class="input" value="" size="20" autocapitalize="off"
-                               autocomplete="username" required="required">
-                    </p>
-                    <div class="user-pass-wrap">
-                        <label for="user_pass">密码</label>
-                        <div class="wp-pwd">
-                            <input type="password" name="password" id="user_pass" class="input password-input" value="" size="20" autocomplete="current-password" spellcheck="false" required="required">
-                            <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                                    aria-label="显示密码">
-                                <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                        <div class="wp-pwd">
-                            <input type="password" name="rePassword" id="user_pass" class="input password-input" value="" size="20" autocomplete="current-password" spellcheck="false" required="required">
-                            <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                                    aria-label="显示密码">
-                                <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <p>
-                    </p>
-                    <p>
-                    </p>
-                    <p class="submit">
-                        <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
-                               value="注册">
-                    </p>
-                </form>
-            <%
-        }
-        else
-        {
-            %>
-                <h1>
-                    Login
-                </h1>
-                <form name="loginform" id="loginform" action="tryLogin.jsp" method="post">
-                    <p>
-                        <label for="user_login">用户ID</label>
-                        <input type="text" name="userId" id="user_login" class="input" value="" size="20" autocapitalize="off"
-                            autocomplete="username" required="required">
-                    </p>
-                    <div class="user-pass-wrap">
-                        <label for="user_pass">密码</label>
-                        <div class="wp-pwd">
-                            <input type="password" name="password" id="user_pass" class="input password-input" value="" size="20"
-                                autocomplete="current-password" spellcheck="false" required="required">
-                            <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                                    aria-label="显示密码">
-                                <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <p>
-                    </p>
-                    <p>
-                    </p>
-                    <p class="submit">
-                        <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
-                            value="登录">
-                    </p>
-                </form>
-                <p id="nav">
-                        <a class="wp-login-lost-password" href="register.jsp">没有账号？</a>
-                </p>
-            <%
         }
     %>
+    <h1>
+        Login
+    </h1>
+    <form name="loginform" id="loginform" action="login.jsp" method="post">
+        <p>
+            <label for="user_login">用户ID</label>
+            <input type="text" name="userId" id="user_login" class="input" value="" size="20" autocapitalize="off"
+                   autocomplete="username" required="required">
+        </p>
+        <div class="user-pass-wrap">
+            <label for="user_pass">密码</label>
+            <div class="wp-pwd">
+                <input type="password" name="password" id="user_pass" class="input password-input" value="" size="20"
+                       autocomplete="current-password" spellcheck="false" required="required">
+                <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
+                        aria-label="显示密码">
+                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <p>
+        </p>
+        <p>
+        </p>
+        <p class="submit">
+            <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
+                   value="登录">
+        </p>
+    </form>
+    <p id="nav">
+        <a class="wp-login-lost-password" href="register.jsp">没有账号？</a>
+    </p>
 
     <script type="text/javascript">/* <![CDATA[ */
     function wp_attempt_focus() {
