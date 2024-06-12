@@ -5,16 +5,17 @@
 <%@ page import="java.sql.DriverManager" %>
 <%@ page import="com.simple.webui.homework.LoginResult" %>
 <%@ page import="static com.simple.webui.homework.Methods.generateUserId" %>
+<%@ page import="com.simple.webui.homework.Info" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
 
     try
     {
-        String username = request.getParameter("username");
+        String name = request.getParameter("name");
         String pwd = request.getParameter("password");
         String rePwd = request.getParameter("rePassword");
 
-        if(username != null &&
+        if(name != null &&
            pwd != null &&
            rePwd != null)
         {
@@ -29,10 +30,16 @@
             {
                 Connection dbSession = (Connection) application.getAttribute("dbSession");
                 if(dbSession == null)
-                    dbSession = DriverManager.getConnection("jdbc:mysql://localhost:3306/NekoWebUI", "root", "password");
+                {
+                    dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
+                    application.setAttribute("dbSession",dbSession);
+                }
                 long id = generateUserId(dbSession);
                 String hash = User.getStrHash(pwd);
-                User newUser = new User(id,username,username,hash,0,0);
+                User newUser = new User(id,name,null,hash,0,0);
+                newUser.update(session);
+                newUser.update(dbSession);
+                response.sendRedirect(request.getContextPath() + "/Admin/success.jsp");
             }
         }
     }
@@ -46,7 +53,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>登录 ‹ LeZi的猫窝 — WordPress</title>
+    <title>Register - Neko WebUI</title>
     <style>.login-action-lostpassword #login_error {
         display: none
     }</style>
@@ -215,10 +222,8 @@
 
 <body class="login js login-action-login wp-core-ui  locale-zh-cn" style="zoom: 1;">
 <div class="loading" style="display: none;">
-    <img src="./login_files/login_loading.gif" width="58" height="10"></div>
-<div id="bg" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: -1; overflow: hidden;">
-    <img src="./login_files/hd.png"
-         style="display: block; opacity: 1; width: 1311px; height: 983px; margin-left: -96.5px; margin-top: 0px;"></div>
+    <img src="./login_files/login_loading.gif" width="58" height="10">
+</div>
 <script type="text/javascript">/* <![CDATA[ */
 document.body.className = document.body.className.replace('no-js', 'js');
 /* ]]> */
@@ -239,25 +244,18 @@ document.body.className = document.body.className.replace('no-js', 'js');
     </h1>
     <form name="loginform" id="loginform" action="register.jsp" method="post">
         <p>
-            <label for="user_login">用户名</label>
-            <input type="text" name="username" id="user_login" class="input" value="" size="20" autocapitalize="off"
-                   autocomplete="username" required="required">
+            <label for="user_login">用户昵称</label>
+            <input type="text" name="name" id="user_login" class="input" value="" size="20" autocapitalize="off"
+                   autocomplete="name" required="required">
         </p>
         <div class="user-pass-wrap">
             <label for="user_pass">密码</label>
             <div class="wp-pwd">
                 <input type="password" name="password" id="user_pass" class="input password-input" value="" size="20" autocomplete="current-password" spellcheck="false" required="required">
-                <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                        aria-label="显示密码">
-                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                </button>
             </div>
+            <label for="user_pass">请再次输入密码</label>
             <div class="wp-pwd">
                 <input type="password" name="rePassword" id="user_pass" class="input password-input" value="" size="20" autocomplete="current-password" spellcheck="false" required="required">
-                <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                        aria-label="显示密码">
-                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                </button>
             </div>
         </div>
         <p>
@@ -291,18 +289,6 @@ document.body.className = document.body.className.replace('no-js', 'js');
     </script>
     <p id="backtoblog">
         <a href="https://leziblog.com/" one-link-mark="yes">← 返回到 LeZi的猫窝</a></p>
-</div>
-<div class="language-switcher">
-    <form id="language-switcher" action="https://leziblog.com/wp-login.php" method="get"
-          onsubmit="return verificationOK();">
-        <label for="language-switcher-locales">
-            <span class="dashicons dashicons-translation" aria-hidden="true"></span>
-            <span class="screen-reader-text">语言</span></label>
-        <select name="wp_lang" id="language-switcher-locales">
-            <option value="en_US" lang="en" data-installed="1">English (United States)</option>
-            <option value="zh_CN" lang="zh" selected="selected" data-installed="1">简体中文</option>
-        </select>
-        <input type="submit" class="button" value="更改"></form>
 </div>
 <script>if (document.getElementById('login_error')) {
     document.getElementById('user_login').value = ''

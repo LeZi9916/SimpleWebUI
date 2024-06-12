@@ -1,61 +1,11 @@
 <%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="static com.simple.webui.homework.Methods.getErrMsg" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="com.simple.webui.homework.LoginResult" %>
-<%@ page import="com.simple.webui.homework.Info" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    Object _userId = session.getAttribute("userId");
-    if (_userId != null) {
-        long userId = (long) _userId;
-        User user = (User) session.getAttribute("user");
-        if (user != null)
-            response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
-    }
-%>
-<%
-    try
-    {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        String _id = request.getParameter("userId");
-        String pwd = request.getParameter("password");
-        if(_id != null && pwd != null)
-        {
-            long id  = Long.parseLong(_id);
-            String hash = User.getStrHash(pwd);
-            Connection dbSession = (Connection) application.getAttribute("dbSession");
-            if(dbSession == null)
-            {
-                dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
-                application.setAttribute("dbSession",dbSession);
-            }
-
-            User user = User.deserialize(dbSession,id);
-            if(user == null || !user.comparePassword(hash))
-                request.setAttribute("loginResult", LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID);
-            else
-            {
-                user.update(session);
-                response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
-            }
-        }
-
-    }
-    catch(Exception e)
-    {
-
-        request.setAttribute("loginResult", LoginResult.UNKNOWN_ERROR);
-        throw e;
-    }
-%>
 <!DOCTYPE html>
 <html dir="ltr" lang="zh-CN">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Login - Neko WebUI</title>
+    <title>Register - Neko WebUI</title>
     <style>.login-action-lostpassword #login_error {
         display: none
     }</style>
@@ -233,46 +183,31 @@ document.body.className = document.body.className.replace('no-js', 'js');
 <div id="login">
     <div style="height:50px"></div>
     <%
-        Object _loginResult = request.getAttribute("loginResult");
-        if(_loginResult != null)
-        {
-    %>
-    <div id="login_error" class="notice notice-error"><%=getErrMsg((int)_loginResult)%></div>
-    <%
-        }
+        User user = (User) session.getAttribute("user");
     %>
     <h1>
-        Login
+        Success
     </h1>
-    <form name="loginform" id="loginform" action="login.jsp" method="post">
-        <p>
-            <label for="user_login">用户ID</label>
-            <input type="text" name="userId" id="user_login" class="input" value="" size="20" autocapitalize="off"
-                   autocomplete="username" required="required">
-        </p>
-        <div class="user-pass-wrap">
-            <label for="user_pass">密码</label>
-            <div class="wp-pwd">
-                <input type="password" name="password" id="user_pass" class="input password-input" value="" size="20"
-                       autocomplete="current-password" spellcheck="false" required="required">
-                <button type="button" class="button button-secondary wp-hide-pw hide-if-no-js" data-toggle="0"
-                        aria-label="显示密码">
-                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
+    <div name="loginform" id="loginform">
+        <h1>
+            <label for="user_login" style="font-size:20px">用户ID:</label>
+            <p id="user_login"><%= user.getId()%></p>
+        </h1>
+        <h1>
+            <label for="user_login" style="font-size:20px">用户昵称:</label>
+            <p id="user_login"><%= user.getName()%></p>
+        </h1>
         <p>
         </p>
         <p>
         </p>
         <p class="submit">
-            <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
-                   value="登录">
+            <a href="index.jsp" id="wp-submit" class="button button-primary button-large"> 前往用户中心</a>
         </p>
-    </form>
-    <p id="nav">
-        <a class="wp-login-lost-password" href="register.jsp">没有账号？</a>
-    </p>
+        <p class="submit">
+            <a href="${pageContext.request.contextPath}/index.jsp" id="wp-submit" class="button button-primary button-large"> 前往首页</a>
+        </p>
+    </div>
 
     <script type="text/javascript">/* <![CDATA[ */
     function wp_attempt_focus() {
@@ -296,7 +231,6 @@ document.body.className = document.body.className.replace('no-js', 'js');
     <p id="backtoblog">
         <a href="https://leziblog.com/" one-link-mark="yes">← 返回到 LeZi的猫窝</a></p>
 </div>
-
 <script>if (document.getElementById('login_error')) {
     document.getElementById('user_login').value = ''
 }</script>

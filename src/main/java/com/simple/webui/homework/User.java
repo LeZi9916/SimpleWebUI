@@ -3,6 +3,7 @@ package com.simple.webui.homework;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.ZonedDateTime;
 import java.util.Base64;
@@ -80,6 +81,7 @@ public class User
         {
             ResultSet result = dbSession.prepareStatement("SELECT * FROM User WHERE id=" + targetId)
                                         .executeQuery();
+            result.next();
             return new User(targetId,
                             result.getString("name"),
                             result.getString("username"),
@@ -94,10 +96,47 @@ public class User
     {
         sessionId = session.getId();
         session.setAttribute("user",this);
+        session.setAttribute("userId",this.id);
     }
     public void update(Connection dbSession)
     {
-
+        try
+        {
+            ResultSet result = dbSession.prepareStatement("SELECT * FROM User WHERE id=" + this.id)
+                                        .executeQuery();
+            String sql = "";
+            if(result.isBeforeFirst()) // 已有记录
+            {
+                sql = "UPDATE User SET name = ?, username = ? ,password = ?,picId = ? ,userType = ? WHERE id = " + this.id;
+                PreparedStatement statement = dbSession.prepareStatement(sql);
+                statement.setString(1,this.name);
+                statement.setString(2,this.username);
+                statement.setString(3,this.password);
+                statement.setLong(4,this.picId);
+                statement.setInt(5,this.userType);
+                int updated = statement.executeUpdate();
+                if(updated <= 0)
+                    System.out.println("Cannot update row into database");
+            }
+            else
+            {
+                sql = "INSERT INTO User (id,name,username,password,picId,userType) VALUES (?, ?, ?, ?, ?, ?)";
+                PreparedStatement statement = dbSession.prepareStatement(sql);
+                statement.setLong(1,this.id);
+                statement.setString(2,this.name);
+                statement.setString(3,this.username);
+                statement.setString(4,this.password);
+                statement.setLong(5,this.picId);
+                statement.setInt(6,this.userType);
+                int inserted = statement.executeUpdate();
+                if(inserted <= 0)
+                    System.out.println("Cannot insert row into database");
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
     }
     public static String getStrHash(String s)
     {
