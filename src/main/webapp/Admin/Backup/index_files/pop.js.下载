@@ -1,0 +1,271 @@
+/**
+ * Created by zhegxiaofang on 2019/7/22.
+ * 弹框插件
+ */
+(function ($) {
+    /**
+     *内容,确定按钮的点击事件,取消按钮的点击事件
+     * @param title
+     * @param width
+     * @param sureEvent
+     * @param cancleEvent
+     */
+    $.selectDialog = function (options) {
+        var defaults = {
+            title: '',
+            content: '',
+            contentDiv:'',
+            contentDivClass:'',
+            sureText: "",
+            cancleText: "",
+            customBtn:'',
+            width: 'wid440',
+            baseUrl:_CP_xinfanya_+"/xinfanya/",
+            zindex: 10,
+            sureEvent: function () {
+            },
+            cancleEvent: function () {
+            }
+        };
+        var sets = $.extend(defaults, options || {});
+
+        // 自定义弹框的内容
+        var content=sets.contentDiv?sets.contentDiv:'';
+
+        if(sets.content){
+            content='<p tabindex="29992" class="popWord fs16 colorIn">' + sets.content + '</p>'+content;
+        }
+
+        // 自定义按钮的个数
+        var btns=sets.customBtn?sets.customBtn:'';
+        if(sets.sureText){
+            btns+= '<a tabindex="29993" role="button" href="javascript:void(0)" class="jb_btn jb_btn_92 fr fs14 dialog_affrim">' + sets.sureText + '</a>' ;
+        }
+        if(sets.cancleText){
+            btns+= '<a tabindex="29994" role="button" href="javascript:void(0)" class="btnBlue btn_92_cancel fr fs14 dialog_cancle">' + sets.cancleText + '</a>';
+        }
+        if(btns){
+            btns='<div class="popBottom shadowBox">'+btns+ '</div><div class="het72"></div>';
+        }
+
+        var selectDialog = '<div tabindex="29990" role="dialog" aria-modal="true" class="maskDiv"  id="popDiv1" aria-labelledby="popDiv1" style="z-index: '+sets.zindex+'"><div class="popDiv ' + sets.width + '">' +
+            '<div class="popHead">' +
+            '<a tabindex="29995" aria-label="关闭" role="button" href="javascript:void(0)" class="popClose fr"><img src="'+sets.baseUrl+'images/popClose.png"></a>' +
+            '<p tabindex="29991" class="fl fs18 colorDeep">' + sets.title +
+            '</p>' +
+            '</div>' +
+            '<div class="het62"></div>' + content + btns+
+            '</div></div>';
+
+
+        $("body").append(selectDialog);
+        $('#popDiv1').fullFadeIn();
+        unScroll();
+
+        //点击确定调用的事件
+        $('#popDiv1').on('click', '.dialog_affrim', function () {
+            top.postMessage('{"cmd":1,"toggle":false}', "*");
+            $('#popDiv1').fullFadeOut(1000);
+            setTimeout(function(){
+                $('#popDiv1').off('click').remove();
+            },300)
+            if ($.isFunction(sets.sureEvent)) {
+                removeUnScroll();
+                sets.sureEvent();
+            }
+            return false;
+        });
+        // 点击取消调用的事件
+        $('#popDiv1').show().on('click', '.dialog_cancle', function () {
+            $('#popDiv1').fullFadeOut(1000);
+            setTimeout(function(){
+                $('#popDiv1').off('click').remove();
+            },300);
+            if ($.isFunction(sets.cancleEvent)) {
+                removeUnScroll();
+                sets.cancleEvent();
+            }
+            return true;
+        });
+        // 点击关闭按钮调用的事件
+        $("#popDiv1 .popClose").on("click", function () {
+            removeUnScroll();
+            $('#popDiv1').fullFadeOut();
+            setTimeout(function(){
+                $('#popDiv1').off('click').remove();
+            },300)
+        });
+        $("#popDiv1").focus();
+    };
+
+
+    $.selectDialog7 = function (options) {
+        var defaults = {
+            title: '',
+            content: '',
+            contentDiv:'',
+            contentDivClass:'',
+            sureText: "",
+            cancleText: "",
+            customBtn:'',
+            width: 'wid440',
+            baseUrl:_CP_xinfanya_+"/xinfanya/",
+            sureEvent: function () {
+            },
+            cancleEvent: function () {
+            }
+        };
+        var sets = $.extend(defaults, options || {});
+
+        // 自定义弹框的内容
+        var content = sets.contentDiv?sets.contentDiv:'';
+
+        if(sets.content){
+            content = '<p tabindex="29992" class="popWord fs16 colorIn">' + sets.content + '</p>'+content;
+        }
+
+        // 自定义按钮的个数
+        var btns = sets.customBtn?sets.customBtn:'';
+        if(sets.sureText){
+            btns += '<a tabindex="29993" role="button" href="javascript:void(0)" class="jb_btn jb_btn_92 fr fs14 dialog_affrim">' + sets.sureText + '</a>' ;
+        }
+        if(sets.cancleText){
+            btns += '<a tabindex="29994" role="button" href="javascript:void(0)" class="btnBlue btn_92_cancel fr fs14 dialog_cancle">' + sets.cancleText + '</a>';
+        }
+        if(btns){
+            btns = '<div class="popBottom shadowBox">'+btns+ '</div><div class="het72"></div>';
+        }
+
+        var selectDialog = '<div tabindex="29990" role="dialog" aria-modal="true" class="maskDiv"  id="popDiv7" aria-labelledby="popDiv7"><div class="popDiv ' + sets.width + '">' +
+            '<div class="popHead">' +
+            '<a tabindex="29995" aria-label="关闭" role="button" href="javascript:void(0)" class="popClose fr"><img src="'+sets.baseUrl+'images/popClose.png"></a>' +
+            '<p tabindex="29991" class="fl fs18 colorDeep">' + sets.title +
+            '</p>' +
+            '</div>' +
+            '<div class="het62"></div>' + content + btns+
+            '</div></div>';
+
+
+        $("body").append(selectDialog);
+        $('#popDiv7').fullFadeIn();
+        unScroll();
+
+        // 点击确定调用的事件
+        $('#popDiv7').on('click', '.dialog_affrim', function () {
+            top.postMessage('{"cmd":1,"toggle":false}', "*");
+            $('#popDiv7').fullFadeOut(1000);
+            setTimeout(function(){
+                $('#popDiv7').off('click').remove();
+            },0)
+            if ($.isFunction(sets.sureEvent)) {
+                removeUnScroll();
+                sets.sureEvent();
+            }
+            return false;
+        });
+        // 点击取消调用的事件
+        $('#popDiv7').show().on('click', '.dialog_cancle', function () {
+            $('#popDiv7').fullFadeOut(1000);
+            setTimeout(function(){
+                $('#popDiv7').off('click').remove();
+            },0);
+            if ($.isFunction(sets.cancleEvent)) {
+                removeUnScroll();
+                sets.cancleEvent();
+            }
+            return false;// 解决点击取消、关闭按钮，滚动到顶部的问题
+        });
+        // 点击关闭按钮调用的事件
+        $("#popDiv7 .popClose").on("click", function () {
+            removeUnScroll();
+            $('#popDiv7').fullFadeOut();
+            setTimeout(function(){
+                $('#popDiv7').off('click').remove();
+            },0)
+            return false;
+        });
+        $("#popDiv7").focus();
+    };
+
+    var fadeOutToastHandle=-1;
+    var removeToastHandle=-1;
+    /**
+     *内容,确定按钮的点击事件,取消按钮的点击事件
+     * @param title
+     * @param time
+     */
+    $.toast = function (options) {
+        var defaults = {
+            content: "操作成功",
+            time: 3000,
+            type: '',
+            baseUrl:_CP_xinfanya_+"/xinfanya/",
+        };
+        var sets = $.extend(defaults, options || {});
+        var iconUrl = '';
+        if (sets.type === 'success') {
+            iconUrl ='images/right.png';
+        } else if (sets.type === 'failure') {
+            iconUrl = 'images/wrong.png';
+        } else if (sets.type === 'loading') {
+            iconUrl = 'images/round.png';
+        } else if (sets.type === 'warning') {
+            iconUrl = 'images/warning.png';
+        }
+        iconUrl=sets.baseUrl+iconUrl;
+        var toast = iconUrl ? '<div role="alert" tabindex="-1" aria-labelledby="dialogToast" class="toolTipBox" id="dialogToast" style="z-index:100"><i class="popicon"><img src="' + iconUrl + '" /></i>' + sets.content + '</div>' : '<div class="toolTipBox" id="dialogToast">' + sets.content + '</div>';
+
+        $("#dialogToast").remove();
+        $("body").append(toast);
+        $("#dialogToast").fadeIn();
+        
+        var activeElement=document.activeElement;
+        
+        $("#dialogToast").focus();
+
+        /* $(window).resize(function () {
+             setTimeout(function () {
+                 $("#dialogToast").css({
+                     top: function () {
+                         return ($(window).height() - $(this).height()) / 2;
+                     }, left: function () {
+                         return ($(window).width() - $(this).width()) / 2;
+                     }
+                 });
+             }, 50);
+         });
+         $("#dialogToast").css({
+             top: function () {
+                 return ($(window).height() - $(this).height()) / 2;
+             }, left: function () {
+                 return ($(window).width() - $(this).width()) / 2;
+             }
+         });*/
+
+        clearTimeout(fadeOutToastHandle);
+        clearTimeout(removeToastHandle);
+        // 自动推出
+        fadeOutToastHandle=setTimeout(function () {
+        	$(activeElement).focus();
+            $("#dialogToast").fadeOut();
+            removeToastHandle=setTimeout(function(){
+                $("#dialogToast").remove();
+            },1000)
+        }, sets.time);
+        
+    };
+
+    $.fn.extend({
+        fullFadeIn:function(t,e,n,r){
+            top.postMessage('{"cmd":1,"toggle":true}', "*");
+            return this.fadeIn(t,e,n,r);
+        },
+        fullFadeOut:function(t,e,n,r){
+            setTimeout(function(){
+                top.postMessage('{"cmd":1,"toggle":false}', "*");
+            },300);
+            return this.fadeOut(t,e,n,r)
+        }
+    });
+
+})(window.jQuery);

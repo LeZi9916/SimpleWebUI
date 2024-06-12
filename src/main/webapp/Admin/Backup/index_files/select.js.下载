@@ -1,0 +1,380 @@
+// 用于项目中下拉列表的使用
+// 依赖插件 jquery  jquery.nicesroll.js 做美化滚动条
+(function ($) {
+    $.zSelect = function (options) {
+        var deflaults = {
+            ele: '',  //触发下拉列表的元素，只支持ID
+            selectedId: undefined,  // 选中项
+            direction: 'left',
+            hasSearchMin: 5,  // 大于当前数量显示输入框
+            hasSearch: false,  // 是否带搜索框,触发元素不能输入的情况下才生效
+            placeholder: '请输入',  //搜索框的占位符
+            hasClassify: false,  // 是否带分类，目前只支持一级分类
+            id: 'id',   // 数据ID的别名
+            text: 'text', // 数据text的别名
+            children: 'children', // 数据children的别名
+            data: [],
+            title:'',
+            maxheight:350, // 最大高度,列表滚动区域的高度，如：不包括搜索框
+            selected: function () {
+            }  // 选中后的回调
+        };
+
+        var sets = $.extend(deflaults, options || {});
+        var datas = sets.data;
+        var select = '', lists = '', exSearch = '', searchVal = '',title='';
+
+        $("#zSelect").remove();
+        // 添加搜索框
+        if (sets.hasSearch && $(sets.ele).attr('readonly') && sets.data.length > sets.hasSearchMin) {
+            exSearch = '<div class="select-search"><input type="text" value="' + searchVal + '" placeholder="' + sets.placeholder + '"/><span class="icon icon-search"></span></div>'
+        }
+
+        // 添加顶部title
+        if(sets.title.length>0){
+            title = '<div id="selectTitle">'+sets.title+'</div>'
+        }
+
+        // 下拉选项的渲染
+        function readerData() {
+            select = '';
+            renderLi();
+            $("#zSelect").remove();
+            if(sets.direction =='left'){
+                select = '<div id="zSelect" class="select-list">' +title+ exSearch + '<ul class="select-lists" style="max-height:'+sets.maxheight+'px">' + lists + '</ul></div>';
+            }else{
+                select = '<div id="zSelect" class="select-list select-list-r">' +title+ exSearch + '<ul class="select-lists" style="max-height:'+sets.maxheight+'px">' + lists + '</ul></div>';
+            }
+            // $(sets.ele).after(select);
+            $('body').append(select);
+            $("#zSelect .select-item[data-id=" + sets.selectedId + "]").addClass("select-active");
+            setPosition();
+            selectItem();
+            scrollInit();
+        }
+
+        // 数据渲染
+        function renderLi() {
+            lists = '';
+            if (datas.length > 0) {
+                if (datas[0].hasOwnProperty(sets.children)) { // 有分类的下拉列表
+                    for (var j = 0; j < datas.length; j++) {
+                        var childLi = '';
+                        for (var k = 0; k < datas[j][sets.children].length; k++) {
+                            childLi += '<li class="select-item" data-id="' + datas[j][sets.children][k][sets.id] + '">' + datas[j][sets.children][k][sets.text] + '</li>';
+                        }
+                        lists += '<li><p class="classify-name">' + datas[j][sets.text] + '</p><ul>' + childLi + '</ul></li>';
+                    }
+
+                } else {  //没有分类的下拉列表
+                    for (var i = 0; i < datas.length; i++) {
+                        lists += '<li class="select-item" data-id="' + datas[i][sets.id] + '">' + datas[i][sets.text] + '</li>'
+                    }
+                }
+            } else {
+                lists += '<li class="fs12 no-data">'+$.i18n.prop("language.noSearchResults")+'</li>'//无搜索结果
+            }
+        }
+
+        // 美化下拉滚动条
+        function scrollInit() {
+            //解决教案再添加多个活动后滚动条不出现的问题，加的延时处理
+            setTimeout(function(){
+                $(".select-lists").niceScroll({
+                    cursorborder: "",
+                    cursorwidth: 8,
+                    cursorcolor: "#CAD5E6",
+                    boxzoom: false,
+                    autohidemode: true,
+                    railpadding: { top: 0, right: 2, left: 0, bottom: 0 }
+                });
+            },500)
+
+           /* $(".select-lists").attr("style","overflow:scroll;max-height: 160px;");*/
+        }
+
+        // 判断下拉框加载的位置
+        function setPosition(ele) {
+            // console.log("222")
+            var thisEle=ele||$(sets.ele);
+            var top = thisEle.offset().top + thisEle.outerHeight() + 4;
+            var width = thisEle.outerWidth(true);
+            var left = thisEle.offset().left;
+            var docWidth=$('html').outerWidth();
+            var right=docWidth-left-width;
+
+            if($("body").height()<$("body")[0].scrollHeight){  //此时为全屏
+                top = thisEle.offset().top- $(document).scrollTop()+ thisEle.outerHeight() + 4;
+                if(ele){
+                    if( $("#zSelect").hasClass("top-auto")){
+                        var bottom = $('body').height()-(thisEle.offset().top-$(document).scrollTop())+4;
+                        $("#zSelect").css({
+                            position:"fixed",
+                            bottom: bottom+ 'px',
+                            top:'auto',
+                            right:right+'px',
+                            width: width
+                        })
+                    }else{
+                        $("#zSelect").css({
+                            position:"fixed",
+                            top: top + 'px',
+                            right:right+'px',
+                            bottom:'auto',
+                            width: width
+                        })
+                    }
+                }else{
+                    // 判断滚动条是放在上面还是下面  第一次才做此操作
+                    if(top+$("#zSelect").outerHeight()>$('body').height()){
+                        var bottom = $('body').height()-(thisEle.offset().top-$(document).scrollTop())+4;
+                        $("#zSelect").addClass("top-auto");
+                        $("#zSelect").css({
+                            position:"fixed",
+                            bottom: bottom+ 'px',
+                            top:'auto',
+                            right:right+'px',
+                            width: width
+                        })
+                    }else{
+                        $("#zSelect").css({
+                            position:"fixed",
+                            top: top + 'px',
+                            right:right+'px',
+                            bottom:'auto',
+                            width: width
+                        })
+                    }
+                }
+            }else{
+                if(ele){
+                    if( $("#zSelect").hasClass("top-auto")){
+                        var bottom = $(document).height()-thisEle.offset().top+4;
+                        $("#zSelect").css({
+                            bottom: bottom+ 'px',
+                            top:'auto',
+                            right:right+'px',
+                            width: width
+                        })
+                    }else{
+                        $("#zSelect").css({
+                            top: top + 'px',
+                            right:right+'px',
+                            bottom:'auto',
+                            width: width
+                        })
+                    }
+                }else{
+                    // 判断滚动条是放在上面还是下面  第一次才做此操作
+                    if(top+$("#zSelect").outerHeight()>$(document).height()){
+                        var bottom = $(document).height()-thisEle.offset().top+4;
+                        $("#zSelect").addClass("top-auto");
+                        $("#zSelect").css({
+                            bottom: bottom+ 'px',
+                            top:'auto',
+                            right:right+'px',
+                            width: width
+                        })
+                    }else{
+                        $("#zSelect").css({
+                            top: top + 'px',
+                            right:right+'px',
+                            bottom:'auto',
+                            width: width
+                        })
+                    }
+                }
+            }
+        }
+        // 窗口缩放的时候改变列表的位置
+        $(window).resize(function(){
+            if($(".select-wrap .expanded").length>0){
+                var $ele=$(".select-wrap .expanded");
+            }
+            setTimeout(function(){
+                setPosition($ele);
+            },30)
+        });
+
+        // 点击title,回到顶部
+        $(document).off("click","#selectTitle").on("click","#selectTitle",function(){
+            $(".select-inp.expanded").attr("value",'');
+            $(".expanded").removeClass("expanded");
+            $("#zSelect").slideUp(100);
+            setTimeout(function () {
+                $("#zSelect").remove();
+            }, 100)
+        });
+
+        // 点击输入框，展示下拉列表
+        $(document).off("click",sets.ele).on("click",sets.ele, function () {
+            if (!$(this).hasClass("expanded")) {
+                datas = sets.data;
+                $(".expanded").removeClass("expanded");
+                $(this).addClass("expanded");
+                readerData();
+                setTimeout(function(){
+                    $("#zSelect").slideDown();
+
+                    //已选择的选项定位到中间位置
+                    var i = $("li.select-active").index();
+                    if(i>-1){
+                        var h = $(".select-lists").height();
+                        var sh = $(".select-lists").get(0).scrollHeight;
+                        var n = $(".select-lists li").size();
+                        var w = sh * ((i+1)/n);
+                        $(".select-lists").scrollTop(w-h/2);
+                    }
+                },50);
+            } else {
+                $(this).removeClass("expanded");
+                removeSelect();
+            }
+        });
+
+        $(document).off("click",".select-wrap .icon").on("click",".select-wrap .icon", function () {
+            // console.log("111")
+            $(this).parents(".select-wrap").find(".select-inp").click();
+            $(this).parents(".select-wrap").find(".z-select-btn").click();
+        });
+
+        // 点击其他区域，关闭下拉列表
+        $(document).on("click", function (event) {
+            if($("#zSelect").length>0){
+                var selectLists = $(".select-wrap");
+                var flag = false;
+                for (var i = 0; i < selectLists.length; i++) {
+                    if (selectLists[i].contains(event.target)) {
+                        flag = true;
+                    }
+                }
+                if (!flag && !$("#zSelect")[0].contains(event.target)) {
+                    $(".expanded").removeClass("expanded");
+                    removeSelect();
+                }
+            }
+        });
+
+        // 移除下拉
+        function removeSelect() {
+            // $("#zSelect").fadeOut(300);
+            $("#zSelect").slideUp(100);
+            setTimeout(function () {
+                $("#zSelect").remove()
+            }, 300)
+        }
+
+        // 获取选中
+        function selectItem() {
+            $(".select-item").off("click").on("click", function () {
+                var selectedData;
+                var thisId = $(this).attr("data-id");
+                sets.selectedId = thisId;
+                $("this").addClass("select-active");
+
+                for (var i = 0; i < sets.data.length; i++) {
+                    if (sets.data[i].hasOwnProperty('id') && sets.data[i][sets.id] == thisId) {
+                        selectedData = sets.data[i];
+                    } else if (sets.data[i].hasOwnProperty('children')) {
+                        for (var j = 0; j < sets.data[i][sets.children].length; j++) {
+                            if (sets.data[i][sets.children][j].hasOwnProperty('id') && sets.data[i][sets.children][j].id == thisId) {
+                                selectedData = sets.data[i][sets.children][j];
+                            }
+                        }
+                    }
+                }
+                $(".expanded").removeClass("expanded");
+                removeSelect();
+                // 将获取到的值返回给前台
+                if ($.isFunction(sets.selected)) {
+                    sets.selected(selectedData);
+                    var selectInp=$(sets.ele).parents(".select-wrap").find(".select-inp");
+                    if(selectInp.length>0){
+                        $(sets.ele).parents(".select-wrap").find(".select-inp").attr("value",$(this).text());
+                        $(sets.ele).parents(".select-wrap").find(".select-inp").val($(this).text());//不同浏览器不同输入框对val()和attr("value")的效果不一样，这里都执行，兼容所有情况
+                        var dinputevent;
+                        var dchangeevent;
+                        if (typeof Event === 'function') {
+                            dinputevent = new Event('input');
+                            dchangeevent = new Event('change');
+                        } else {
+                            // IE11
+                            dinputevent = document.createEvent('Event');
+                            dinputevent.initEvent('input', true, true);
+
+                            dchangeevent = document.createEvent('Event');
+                            dchangeevent.initEvent('change', true, true);
+                        }
+                        $(sets.ele).parents(".select-wrap").find(".select-inp")[0].dispatchEvent(dinputevent);//触发输入事件，会触发vue的v-model同步，否则v-model无法同步
+                        $(sets.ele).parents(".select-wrap").find(".select-inp")[0].dispatchEvent(dchangeevent);//触发值改变事件
+                    }else{
+                        $(sets.ele).parents(".select-wrap").find(".z-select-btn").html($(this).text());
+                    }
+
+                }
+            });
+        }
+
+        // 实时搜索
+        var searchBox;
+        if (exSearch.length > 0) {
+            searchBox = "#zSelect .select-search>input";
+        } else {
+            searchBox = sets.ele;
+        }
+        $(document).on("input propertychange", searchBox, function (event) {
+            var val = $(this).val();
+            searchVal = val;
+            datas = [];
+            if (val.length > 0) {
+                for (var i = 0; i < sets.data.length; i++) {
+                    if (sets.data[i].hasOwnProperty(sets.text) &&
+                        !sets.data[i].hasOwnProperty(sets.children) &&
+                        sets.data[i][sets.text].indexOf(val) !== -1) {
+
+                        var thisData={};
+                        var text=sets.data[i][sets.text];
+                        var $index=text.indexOf(val);
+                        text=text.substr(0,$index)+"<em>"+val+"</em>"+text.substr($index+val.length);
+
+                        thisData[sets.id]=sets.data[i][sets.id];
+                        thisData[sets.text]=text;
+
+                        datas.push(thisData);
+
+                    } else if (sets.data[i].hasOwnProperty(sets.children)) {
+
+                        var li = [];
+                        for (var j = 0; j < sets.data[i][sets.children].length; j++) {
+                            if (sets.data[i][sets.children][j].hasOwnProperty(sets.text) &&
+                                sets.data[i][sets.children][j][sets.text].indexOf(val) !== -1) {
+
+                                var thisChildData={};
+                                var text=sets.data[i][sets.children][j][sets.text];
+                                var $index=text.indexOf(val);
+                                text=text.substr(0,$index)+"<em>"+val+"</em>"+text.substr($index+val.length);
+
+                                thisChildData[sets.id]=sets.data[i][sets.id];
+                                thisChildData[sets.text]=text;
+
+
+                                li.push(thisChildData);
+                            }
+                        }
+                        if (li.length > 0) {
+                            var currData = {};
+                            currData[sets.text] = sets.data[i][sets.text];
+                            currData[sets.children] = li;
+                            datas.push(currData);
+                        }
+                    }
+                }
+            } else {
+                datas = sets.data;
+            }
+            renderLi();
+            $(".select-lists").html(lists);
+            selectItem();
+        });
+    }
+})(window.jQuery);

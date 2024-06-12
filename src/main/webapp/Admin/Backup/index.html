@@ -1,26 +1,9 @@
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-	User user = null;
-	Object _userId = session.getAttribute("userId");
-	if (_userId != null)
-	{
-		String userId = ((Long) _userId).toString();
-		String sessionId = (String) application.getAttribute(userId);
-		if (sessionId == null || !sessionId.equals(session.getId()))
-			response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
-		user = (User) session.getAttribute("user");
-	}
-	else
-		response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
-%>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>
-			Neko WebUI
+			形势与政策2024年春
 		</title>
 		<link href="./index_files/common.css" type="text/css" rel="stylesheet">
 		<link href="./index_files/style.css" type="text/css" rel="stylesheet">
@@ -28,12 +11,8 @@
 		<link href="./index_files/coursenotices.css" type="text/css" rel="stylesheet">
 		<link href="./index_files/learningCommitment.css" type="text/css" rel="stylesheet">
 		<link href="./index_files/microCourseNav.css" type="text/css" rel="stylesheet">
-		<link href="./index_files/style(1).css" type="text/css" rel="stylesheet">
-		<link href="./index_files/common(1).css" type="text/css" rel="stylesheet">
-		<link href="./index_files/pop(1).css" type="text/css" rel="stylesheet">
-		<link href="./index_files/style(2).css" type="text/css" rel="stylesheet">
-		<link href="./index_files/list.css" type="text/css" rel="stylesheet">
-		<style>.clearfix:after{content: " ";display: block;height: 0px;clear: both;}</style>
+		<script type="text/javascript" src="./index_files/ServerHost.js.下载">
+		</script>
 		<style type="text/css">
 			a{text-decoration:none;;white-space: nowrap;text-overflow: ellipsis;-o-text-overflow:
 			ellipsis;overflow: hidden} .fixed-right-btm {position: fixed;right: 36px;bottom:
@@ -77,10 +56,6 @@
 			18px;letter-spacing: 1px;float:left;line-height: 40px;}
 		</style>
 		<link rel="stylesheet" href="chrome-extension://mbklgpngoohbbagagdfoccaclpdhgihd/css/index.css">
-		<style>
-			.main{min-width: 1040px;min-height: 700px;background: #FFFFFF;box-shadow: 0 2px 10px 0 rgba(237,238,240,0.50);border-radius: 8px;margin:30px}
-			.popicon img{top:0px}
-		</style>
 		<style type="text/css">
 			.back_to_top{display:none;width:40px;height:40px;right:20px;background:
 			#FFFFFF;box-shadow: 0 1px 7px 0 rgba(198,204,217,0.58);position:fixed;
@@ -106,7 +81,15 @@
 	</head>
 	<body>
 		<div class="box">
+            <!--
+			<script src="./index_files/all-head-new.shtml" method="get" charset="utf-8">
+			</script>
+            -->
 			<link href="./index_files/header.css" type="text/css" rel="stylesheet">
+			<script type="text/javascript" src="./index_files/jquery-3.6.0.min.js.下载">
+			</script>
+			<script type="text/javascript" src="./index_files/common.js.下载">
+			</script>
 			<div class="Header">
 				<div class="Logo fl">
 					<p style="font-size:20px;font-weight: bold">Neko WebUI</p>
@@ -114,10 +97,12 @@
 				<div class="headRight fr">
 					<div class="loginAfter fr">
 						<span class="headPic fl">
-							<img width="100%" height="100%" src="<%=request.getContextPath() + "/pic/" + user.getPicId() + ".jpg"%>">
+							<img width="100%" height="100%" src="./index_files/307417547_80">
 						</span>
 						<div class="name fl">
-							<p><%= user.getName()%></p>
+							<p>
+								宋宇皓
+							</p>
 							<i class="arrowDown">
 							</i>
 							<ul class="loginCon Bubble_Popup">
@@ -140,6 +125,14 @@
 					</div>
 				</div>
 			</div>
+			<input type="hidden" id="microCourseTopicOpenType" value="0">
+			<input type="hidden" id="loadCourseNotice" value="0">
+			<input type="hidden" id="notAgreeCommitment" value="false">
+			<input type="hidden" id="courseid" value="243353784">
+			<input type="hidden" id="clazzid" value="98918368">
+			<input type="hidden" id="cpi" value="358913106">
+			<input type="hidden" id="microTopicId" value="0">
+			<input type="hidden" id="chapterId" value="0">
 			<div class="nav_side ">
 				<input type="hidden" id="isChaoxingClient" value="false">
 				<div class="sideCon" id="boxscrollleft" tabindex="1" style="height: 931px; overflow: hidden; outline: none;">
@@ -153,6 +146,30 @@
 						<dd class="textHidden colorDeep"></dd>
 					</dl>
 					<div class="nav-content   stuNavigationList">
+						<input type="hidden" id="courseid" name="courseid" value="243353784">
+						<input type="hidden" id="courseBelongSchoolId" value="3060">
+						<input type="hidden" id="clazzid" name="clazzid" value="98918368">
+						<input type="hidden" id="cfid" name="cfid" value="3060">
+						<input type="hidden" id="bbsid" name="bbsid" value="312de279ae15710785a21cf7bddcd9ed">
+						<input type="hidden" id="cpi" name="cpi" value="358913106">
+						<input type="hidden" id="heardUt" name="heardUt" value="s">
+						<input type="hidden" id="fid" name="fid" value="3060">
+						<input type="hidden" id="openc" name="openc" value="4a3a762d159e9c94bb93b349285a6c43">
+						<input type="hidden" id="enc" name="enc" value="53dae7e3907e60d623fe90956db14219">
+						<input type="hidden" id="oldenc" name="oldenc" value="cd68a9afbae22de75773cd47a7d7da69">
+						<input type="hidden" id="userId" name="userId" value="307417547">
+						<input type="hidden" id="moocDomainName" name="moocDomainName" value="https://mooc1.chaoxing.com">
+						<input type="hidden" id="courseApp" name="courseApp" value="0">
+						<input type="hidden" id="workEnc" name="workEnc" value="b5c29a48ca630fe6bff87542dd3be2df">
+						<input type="hidden" id="examEnc" name="examEnc" value="a6d37a2bd1160b1721c1cacebbe1e347">
+						<input type="hidden" id="v" name="v" value="0">
+						<input type="hidden" id="t" name="t" value="1718198458616">
+						<input type="hidden" id="bbsUrlSwitch" name="bbsUrlSwitch" value="true">
+						<input type="hidden" id="learnSilverStartTime" name="learnSilverStartTime"
+						value="">
+						<input type="hidden" id="learnSilverEndTime" name="learnSilverEndTime"
+						value="">
+						<input type="hidden" id="courseEvaluateUrl" name="courseEvaluateUrl" value="https://mooc1.chaoxing.com/course-ans/courseportal/courseevaluatehead?courseId=243353784">
 						<ul>
 							<li opentype="0" dataname="hd" pageheader="0" class="curNav" id="nav_38235"
 							data="38235" shownewmark="0">
@@ -319,66 +336,63 @@
 				</div>
 			</div>
 		</div>
-		<div id="frame_content-hd" width="1868" height="931"
+		<script type="text/javascript" src="./index_files/jquery.min.js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/jquery.nicescroll.min.js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/common(1).js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/backtop.min.js.下载" language="javascript">
+		</script>
+		<script type="text/javascript" src="./index_files/contentLoader.js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/course-stu.js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/poptoast.js.下载">
+		</script>
+		<script type="text/javascript" src="./index_files/domain.js.下载">
+		</script>
+		<script type="text/javascript">
+			if ("0" == "1") {
+				window.onload = function() {
+					// 无障碍点击菜单,读取已访问实现
+					$("#boxscrollleft .stuNavigationList ul li a").click(function() {
+						var labelName = $(this).attr("aria-label");
+						if (!labelName || labelName.indexOf("已访问") == -1) {
+							$(this).attr("aria-label", "已访问");
+						}
+					});
+
+					$("#boxscrollleft .stuNavigationList ul li a").keydown(function(event) {
+						if (event.keyCode == 9 && !event.shiftKey) {
+							if ($(this.parentElement).attr('dataname') === 'cj') {
+								$("#boxscrollleft").focus();
+							}
+						}
+					})
+
+					// 无障碍 聚焦点击过的菜单选项
+					window.addEventListener("message",
+					function(event) {
+						let data = event.data;
+						if (!data) return;
+						var msgJson = JSON.parse(event.data);
+						if (msgJson.type === "nav_stu_top_focus") {
+							$("#boxscrollleft .stuNavigationList ul li.curNav a").focus();
+						}
+					});
+				};
+			}
+
+			function toOveralScore() {
+				var url = 'https://stat2-ans.chaoxing.com' + "/stat2/overall-score/stu-score?courseid=" + "243353784" + "&cpi=" + "358913106" + "&clazzid=" + "98918368" + "&ut=s";
+				window.open(url);
+			}
+		</script>
+		<iframe id="frame_content-hd" name="frame_content-hd" width="1868" height="931"
 		allowfullscreen="true" allow="microphone;clipboard-write" src="./index_files/stuActiveList.html"
 		style="position: absolute; inset: 52px 0px 0px 180px; border: 0px; width: 1868px; height: 931px;">
-			<div style="zoom: 1; background: transparent;">
-
-				<div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
-					<div class="main task-list">
-						<div id="stuRenwuListFocus" tabindex="15" aria-label="任务已刷新，请按tab键" role="option" class="element-invisible-hidden"></div>
-						<div class="top-back"><h2 id="classObjName" tabindex="16" title="软件2304-2305">软件2304-2305</h2></div>
-						<div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
-						<div tabindex="17" class="null-data" style="display: none;">no Task</div>
-						<div class="has-content" style="">
-							<div class="filter" style="display: none;">
-								<span class="title">Filtrate</span>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio" checked="checked">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock"> All</div>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">已完成</div>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">未完成</div>
-							</div>
-							<div class="bottomList">
-								<div tabindex="18" class="status">In Progress<span aria-label="0个">（0）</span></div>
-								<ul></ul> <!----> <ul></ul>
-								<div tabindex="19" class="status">Completed<span aria-label="2个">（2）</span></div>
-								<ul>
-									<li tabindex="20" activeid="1000095946237" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-										<div aria-label="签到" class="tag icon-signin-g"></div>
-										<div class="right-content">
-											<p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-											<div class="clearfix"></div> <!---->
-										</div> <!---->
-										<div aria-label="05月29日 16时35分" class="time">End Time：05-29 16:35</div>
-										<div class="clearfix"></div>
-									</li>
-									<li tabindex="21" activeid="1000095415768" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-										<div aria-label="签到" class="tag icon-signin-g"></div>
-										<div class="right-content"><p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-											<div class="clearfix"></div> <!---->
-										</div> <!---->
-										<div aria-label="05月22日 16时37分" class="time">End Time：05-22 16:37</div>
-										<div class="clearfix"></div>
-									</li>
-								</ul>
-							</div>
-						</div>
-						<div id="stuRenwuListFocusEnd" tabindex="22" aria-label="已阅读完" role="option" data-read="已阅读完" class="element-invisible-hidden"></div>
-					</div>
-				</div>
-			</div>
-		</div>
+		</iframe>
 		<input type="hidden" value="chrome_extension" data-id="abcdefghijk" name="chrome_extension">
 	</body>
 

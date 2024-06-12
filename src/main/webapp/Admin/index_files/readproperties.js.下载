@@ -1,0 +1,105 @@
+//判断当前有没有语言环境
+function languageCookieFuc(name){
+    if(navigator.userAgent.indexOf("ChaoXingStudy") > -1){//手机端
+        return getXxtLanguage();
+    }
+    var strcookie = document.cookie;//获取cookie字符串
+    var arrcookie = strcookie.split("; ");//分割
+    var  lang = "";
+    //遍历匹配
+    for ( var i = 0; i < arrcookie.length; i++) {
+        var arr = arrcookie[i].split("=");
+        if (arr[0] === name){
+            lang=arr[1];
+        }
+    }
+    if(lang==""||lang=="default"){
+        if (navigator.userAgent.indexOf("cxliveclient") > -1 || navigator.userAgent.indexOf("chaoxingWisdomClass") > -1){//超星直播客户端、一平三端、智慧教室客户端，直接中文
+            lang = "zh_CN";
+            return lang;
+        }
+        lang=(navigator.languages && navigator.languages.length > 0) ? navigator.languages[0]
+            : (navigator.language || navigator.userLanguage /* IE */ || 'zh_CN');
+        if(lang.indexOf("zh")!=-1){//navigator.language获取到的值格式统一
+            if (lang.indexOf("TW")!=-1){
+                lang="zh_TW"
+            }else{
+                lang = "zh_CN";
+            }
+        }else if(lang.indexOf("en")!=-1){
+            lang="en_US"
+        }else if(lang.indexOf("th")!=-1){
+            lang="th_TH"
+        }else if(lang.indexOf("lo")!=-1){
+            lang="lo_LA"
+        }else{
+            lang = "zh_CN";
+        }
+    }
+    if (lang == "" ||lang=="default"){
+        lang = "zh_CN";
+    }
+    console.log("lang:"+lang)
+    return lang;
+}
+//获取客户端语言
+function  getXxtLanguage(){
+    var userAgent = navigator.userAgent;
+    var language = "zh_CN";
+    try {
+        if(userAgent.indexOf("Language")===-1 ) {
+            return language;
+        }
+        //String ua="Mozilla/5.0 (iPhone; CPU iPhone OS 13_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 (device:iPhone10,2) Language/en com.ssreader.chaoxingstudyinhouse/ChaoXingStudy_3_4.8.4.7_ios_phone_2012040218_59 (@Azeroth)_12151762681750973686";
+        userAgent = userAgent.substring(userAgent.indexOf("Language/") + 9,userAgent.length);
+        //IOS：
+        //英文的时候 Language/en
+        //中文的时候 Language/zh-Hans  繁体Language/zh-Hant
+        //Android：
+        //英文的时候 Language/en_US
+        //中文的时候 Language/zh_CN
+        language = userAgent.substring(0,2);
+        if(language==="en"){
+            language="en_US";
+        }
+        if(language==="zh"){
+            if(navigator.userAgent.indexOf("ios")>-1){
+                language = userAgent.substring(0,8);
+                console.log("language"+language)
+                if(language.indexOf("Hant")>-1){
+                    language="zh_TW";
+                }else{
+                    language="zh_CN";
+                }
+            }else{
+                language = userAgent.substring(0,5);
+            }
+
+        }
+        if(language==="th"){
+            language="th_TH";
+        }
+        if(language==="lo"){
+            language="lo_LA";
+        }
+    } catch (e) {
+    }
+    return language
+}
+
+function loadProperties() {
+	var cp_widget_1="";
+	if(!!_CP_widget_){
+		cp_widget_1=_CP_widget_;
+	}
+    var languageType = languageCookieFuc("browserLocale");
+    jQuery.i18n.properties({// 加载properties文件
+        name: 'language', // properties文件名称
+        path: cp_widget_1+'/properties/', // properties文件路径
+        mode: 'map', // 用 Map 的方式使用资源文件中的值
+        language: languageType, // 对应的语言
+        callback: function () {// 加载成功后设置显示内容
+            //console.log(JSON.stringify( $.i18n))
+        }
+    });
+}

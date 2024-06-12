@@ -1,0 +1,52 @@
+
+var PopLayout = {
+    bodyMargin: [30,30,30,30],
+    init: function(top,right,bottom,left){
+        this.bodyMargin = [top, right, bottom, left];
+    },
+    changeMargin: function(top,right,bottom,left){
+        var d = $(document.body);
+        var m = this.bodyMargin;
+        d.css("margin", (m[0]+top)+"px "+(m[1]+right)+"px "+(m[2]+bottom)+"px "+(m[3]+left)+"px");
+        // d.css("margin-top", (this.bodyMargin[0]+top)+"px");
+        // d.css("margin-right", (this.bodyMargin[1]+right)+"px");
+        // d.css("margin-bottom", (this.bodyMargin[2]+bottom)+"px");
+        // d.css("margin-left", (this.bodyMargin[3]+left)+"px");
+    },
+};
+
+
+$(function(){
+    var d = $(document.body);
+
+    // 如果本页面是嵌入的页面，调整页面布局
+    if($('.Header').length==0 && $('.nav_side').length==0){
+
+        $('head').append('<style>.clearfix:after{content: " ";display: block;height: 0px;clear: both;}</style>');
+        // body透明，与父级页面配合，出现遮罩层居中弹窗
+        d.css('background', 'transparent');
+        // 清除浮动窗口
+        d.children(":first").addClass('clear');
+    }
+
+    // 记录用户原始body边距
+    PopLayout.init(parseInt(d.css("margin-top")), parseInt(d.css("margin-right")), parseInt(d.css("margin-bottom")), parseInt(d.css("margin-left")));
+
+    //监听父级页面布局变化 
+    window.addEventListener("message", function(event) {
+        try {
+			var msgJson = JSON.parse(event.data);
+	        if(msgJson==null){
+	            return ;
+	        }
+	        switch(msgJson.cmd){
+	            case 1001: //修改页边框
+	                PopLayout.changeMargin(msgJson.top, msgJson.right, msgJson.bottom, msgJson.left);
+	                break;
+	        }
+		} catch (e) {
+			// TODO: handle exception
+		}
+
+    });
+});

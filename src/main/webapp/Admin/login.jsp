@@ -8,10 +8,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     Object _userId = session.getAttribute("userId");
-    if (_userId != null) {
-        long userId = (long) _userId;
-        User user = (User) session.getAttribute("user");
-        if (user != null)
+    if (_userId != null)
+    {
+        String userId = ((Long) _userId).toString();
+        String sessionId = (String) application.getAttribute(userId);
+        if (sessionId != null && sessionId.equals(session.getId()))
             response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
     }
 %>
@@ -37,17 +38,14 @@
                 request.setAttribute("loginResult", LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID);
             else
             {
-                user.update(session);
+                user.update(session,application);
                 response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
             }
         }
-
     }
     catch(Exception e)
     {
-
         request.setAttribute("loginResult", LoginResult.UNKNOWN_ERROR);
-        throw e;
     }
 %>
 <!DOCTYPE html>

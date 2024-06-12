@@ -37,7 +37,7 @@
                 long id = generateUserId(dbSession);
                 String hash = User.getStrHash(pwd);
                 User newUser = new User(id,name,null,hash,0,0);
-                newUser.update(session);
+                newUser.update(session,application);
                 newUser.update(dbSession);
                 response.sendRedirect(request.getContextPath() + "/Admin/success.jsp");
             }
@@ -47,6 +47,7 @@
     {
         request.setAttribute("loginResult", LoginResult.UNKNOWN_ERROR);
     }
+
 %>
 <!DOCTYPE html>
 <html dir="ltr" lang="zh-CN">

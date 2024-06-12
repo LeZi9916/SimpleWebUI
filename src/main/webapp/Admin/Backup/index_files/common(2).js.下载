@@ -1,0 +1,448 @@
+// 用于一些公共方法，变量
+
+// 美化滚动条的设置参数
+var customScroll = {
+    cursorborder: "",
+    cursorwidth: 8,
+    cursorcolor: "#CAD5E6",
+    boxzoom: false,
+    autohidemode: true,
+    railpadding: {top: 0, right: 2, left: 0, bottom: 0}
+};
+
+$.loading = {
+    start: function () {
+        var html = "<div class=\"pop-loading\">\n" +
+            "    <img class=\"img-loading\" src=\""+_CP_xinfanya_+"/xinfanya/images/common/loading.gif\" alt=\"\">\n" +
+            "</div>";
+        $('body').append(html);
+        $('body').addClass('popOverflow');
+    },
+    end: function () {
+        $('.pop-loading').remove();
+        $('body').removeClass('popOverflow');
+    }
+}
+
+
+//禁止滚动条滚动
+function unScroll() {
+    $('body').addClass('popOverflow');
+    // var top = $(document).scrollTop();
+    // $(document).on('scroll.unable', function (e) {
+    //     $(document).scrollTop(top);
+    // })
+}
+
+//移除禁止
+function removeUnScroll() {
+    // $(document).unbind("scroll.unable");
+    $('body').removeClass('popOverflow');
+}
+
+
+// 关闭弹框
+function closePop() {
+    $(".popClose,.closePop").on("click", function () {
+        // 排除掉某些离开需要提示的关闭
+        if (!$(this).parents(".popDiv").hasClass("custom-close")) {
+            $(this).parents(".maskDiv").fadeOut();
+            removeUnScroll();
+        }
+    })
+}
+
+//显示弹框
+function showPop(node) {
+    $(node).fadeIn();
+    unScroll();
+}
+
+//关闭弹框2
+function closePop2(node) {
+    $(node).fadeOut();
+    //$(".tab-body .list>li").css("background","");
+    if(vm){
+        vm.clickUid = "";
+    }
+    removeUnScroll();
+}
+
+//tab切换
+function initTab(parent, changeBack, x) {
+    var _index = x || 1;
+    $(parent).find('.tab-head .tab-t').removeClass('current');
+    $(parent).find('.tab-head .tab-t').eq(_index - 1).addClass('current');
+    $(parent).find('.tab-list').hide();
+    $(parent).find('.tab-list').eq(_index - 1).show();
+	$(parent).off('click', '.tab-head .tab-t');
+    $(parent).on('click', '.tab-head .tab-t', function () {
+        if($(this).hasClass("current")){
+            return;
+        }
+        $(this).siblings().removeClass('current');
+        $(this).addClass('current');
+        $(parent).find('.tab-list').hide();
+        var index = $(this).index();
+        $(parent).find('.tab-list').eq(index).show();
+        if (changeBack) {
+            changeBack();
+        }
+    })
+
+}
+
+// 点击弹框区域外，关闭弹框
+function clickBesideClose(triggerObj, popObj) {
+    $(document).on("click", function (event) {
+        if (triggerObj[0] && !triggerObj[0].contains(event.target)) {
+            popObj.slideUp();
+        }
+    })
+}
+
+// 设置main的最小高度
+function setMainHeight(options) {
+    var defaults = {
+        target: $(".main"),
+        height: 112 // 112为main上下的margin的高度
+    };
+    var sets = $.extend(defaults, options || {});
+    var windowH = $(window).height();
+    var height = windowH - sets.height;
+    sets.target.css("min-height", height);
+
+    // 窗口resize,内容高度优化
+    $(window).resize(function () {
+        setTimeout(function () {
+            windowH = $(window).height();
+            height = windowH - sets.height; // 112为main上下的margin的高度
+            sets.target.css("min-height", height);
+        }, 50);
+    });
+}
+
+// 设置x 的最大高度
+function setHeight(options) {
+    var defaults = {
+        type: 'height',
+        target: $(".main"),
+        height: 112 // 112为main上下的margin的高度
+    };
+    var sets = $.extend(defaults, options || {});
+    var windowH = $(window).height();
+    var height = windowH - sets.height;
+    sets.target.css(sets.type, height);
+
+    // 窗口resize,内容高度优化
+    $(window).resize(function () {
+        setTimeout(function () {
+            windowH = $(window).height();
+            height = windowH - sets.height; // 112为main上下的margin的高度
+            sets.target.css(sets.type, height);
+            sets.target.getNiceScroll().resize()
+        }, 50);
+    });
+}
+
+//查看大图
+function initLookBigImg(box,fromActiveList) {
+    addBtnWrap();
+    $('body').on('click', box + ' img', function () {
+        var index = 0;
+        if(fromActiveList==1){
+            index =  $(this).parent("li").index();
+        }else{
+            index =  $(this).index();
+        }
+        $(box).viewer({
+            navbar: false,
+            url: 'data-orignal',
+            title: false,
+            toolbar: false,
+        });
+        viewer = $(this).parents(box).data('viewer');
+        viewer.index = index;
+        viewer.show();
+        // $('.viewBtnWrap').fadeIn();
+        $('.viewBtnWrap').fullFadeIn();
+        if(fromActiveList==1){
+            $(".viewer-container").css("background-color","rgba(53,61,72,1)");
+            setTimeout(function(){
+                $(".popDiv").css("transform","unset")
+            },300)
+        }
+        unactiveViewBtn();
+    })
+    //    上一张
+    $("#viewPrev").on("click", function () {
+        viewer.prev();
+        unactiveViewBtn()
+    })
+    //    下一张
+    $("#viewNext").on("click", function () {
+        viewer.next();
+        unactiveViewBtn()
+    })
+    //    放大
+    $("#viewZoomIn").on("click", function () {
+        viewer.zoom(0.1);
+    })
+    // 缩小
+    $("#viewZoomOut").on("click", function () {
+        viewer.zoom(-0.1);
+    })
+    //    旋转
+    $("#viewFlip").on("click", function () {
+        viewer.rotate(-90);
+    });
+    //    关闭
+    $("body").on("click",".viewer-container",function(){
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform","translate(-50%, -50%)")
+    });
+    $("#viewClose").on("click", function () {
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform","translate(-50%, -50%)")
+    })
+}
+
+//专用于PPT编辑界面查看大图
+function initLookBigImgOfPPT(box) {
+    addBtnWrapOfPPT(0);
+    $('body').on('click', box + ' i', function () {
+        //不让目录弹窗消失
+        $("#stopClickThisPic").val(1);
+        var index = 1;
+        var pageNumIndex = $(this).parents(box).find("input").val();
+        if(pageNumIndex != null && pageNumIndex!= ""){
+            index = pageNumIndex;
+        }
+        $('.top-img-list').viewer({
+            navbar: false,
+            url: 'data-orignal',
+            title: false,
+            toolbar: false,
+        });
+        viewer = $(".top-img-list").data('viewer');
+        viewer.index = index;
+        viewer.show();
+        // $('.viewBtnWrap').fadeIn();
+        //设置当前是多少页
+        $('.viewBtnWrap').find("#viewPageNum").find("#pageNum").text(Number(index)+1);
+        //设置总共有多少页
+        var PPTPageTotal2 = $("#PPTPageTotalInput").val();
+        $('.viewBtnWrap').find("#viewPageNum").find("#PPTPageTotal2").text(Number(PPTPageTotal2));
+        $('.viewBtnWrap').fullFadeIn();
+        unactiveViewBtn();
+    })
+    //    上一张
+    $("#viewPrev").on("click", function () {
+        viewer.prev();
+        unactiveViewBtn();
+        //设置当前是多少页
+        var content = $('.viewBtnWrap').find("#viewPageNum").find("#pageNum").text();
+        //如果当前页大于等于2，则点击上一张时当前页码数减1
+        if(Number(content) >= 2){
+            $('.viewBtnWrap').find("#viewPageNum").find("#pageNum").text(Number(content) - 1);
+        }
+
+    })
+    //    下一张
+    $("#viewNext").on("click", function () {
+        viewer.next();
+        unactiveViewBtn();
+        //设置当前是多少页
+        var content = $('.viewBtnWrap').find("#viewPageNum").find("#pageNum").text();
+        var PPTPageTotal2 = $("#PPTPageTotalInput").val();
+        //如果当前页小于总页数，则点击下一张时当前页码数加1
+        if(Number(content) < Number(PPTPageTotal2)){
+            $('.viewBtnWrap').find("#viewPageNum").find("#pageNum").text(Number(content) + 1);
+        }
+    })
+    //    放大
+    $("#viewZoomIn").on("click", function () {
+        viewer.zoom(0.1);
+    })
+    // 缩小
+    $("#viewZoomOut").on("click", function () {
+        viewer.zoom(-0.1);
+    })
+    //    旋转
+    $("#viewFlip").on("click", function () {
+        viewer.rotate(-90);
+    });
+    //    关闭
+    $("body").on("click",".viewer-container",function(){
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform","translate(-50%, -50%)");
+        $("#stopClickThisPic").val(0);
+    });
+    $("#viewClose").on("click", function () {
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform","translate(-50%, -50%)");
+        $("#stopClickThisPic").val(0);
+    })
+}
+
+//查看大图for pop
+function initLookBigImgForPop(box,fromActiveList) {
+    addBtnWrap();
+    $('body').on('click', box + ' img', function () {
+        var index = 0;
+        if(fromActiveList==1){
+            index =  $(this).parent("li").index();
+        }else{
+            index =  $(this).index();
+        }
+        $(box).viewer({
+            navbar: false,
+            url: 'data-orignal',
+            title: false,
+            toolbar: false,
+        });
+        viewer = $(this).parents(box).data('viewer');
+        viewer.index = index;
+        viewer.show();
+        // $('.viewBtnWrap').fadeIn();
+        $('.viewBtnWrap').fullFadeIn();
+        if(fromActiveList==1){
+            $(".viewer-container").css("background-color","rgba(53,61,72,1)");
+            setTimeout(function(){
+                $(".popDiv").css("transform","unset")
+            },700)
+        }
+        unactiveViewBtn();
+    })
+    //    上一张
+    $("#viewPrev").on("click", function () {
+        viewer.prev();
+        unactiveViewBtn()
+    })
+    //    下一张
+    $("#viewNext").on("click", function () {
+        viewer.next();
+        unactiveViewBtn()
+    })
+    //    放大
+    $("#viewZoomIn").on("click", function () {
+        viewer.zoom(0.1);
+    })
+    // 缩小
+    $("#viewZoomOut").on("click", function () {
+        viewer.zoom(-0.1);
+    })
+    //    旋转
+    $("#viewFlip").on("click", function () {
+        viewer.rotate(-90);
+    });
+    //    关闭
+    $("body").on("click",".viewer-container",function(){
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform",'');
+        //$(".popDiv").css("transform","translate(-50%, -50%)")
+    });
+    $("#viewClose").on("click", function () {
+        viewer.hide();
+        $('.viewBtnWrap').fullFadeOut();
+        $(".popDiv").css("transform",'');
+        //$(".popDiv").css("transform","translate(-50%, -50%)")
+    })
+}
+
+//最后一张图片右键头不可点，第一张图片左箭头不可点
+function unactiveViewBtn() {
+    $('#viewPrev').removeClass('unactive');
+    $('#viewNext').removeClass('unactive');
+    if (viewer.length == 1){
+        $('#viewPrev').attr("hidden",true)
+        $('#viewNext').attr("hidden",true)
+    }else {
+        $('#viewPrev').attr("hidden",false)
+        $('#viewNext').attr("hidden",false)
+    }
+    if (viewer.index == 0) {
+        $('#viewPrev').addClass('unactive');
+    } else if (viewer.index == (viewer.length - 1)) {
+        $('#viewNext').addClass('unactive');
+    }
+}
+
+function addBtnWrap() {
+    var btnWrap = "<div class=\"viewBtnWrap\">\n" +
+        "    <div id=\"viewPrev\"></div>\n" +
+        "    <div id=\"viewNext\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewZoomIn\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewZoomOut\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewFlip\"></div>\n" +
+        "    <div class=\"viewSplit\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewClose\"></div>\n" +
+        "</div>";
+    $('body').append(btnWrap);
+}
+
+function addBtnWrapOfPPT() {
+    var btnWrap = "<div class=\"viewBtnWrap\">\n" +
+        "    <div id=\"viewPrev\"></div>\n" +
+        "    <div id=\"viewNext\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewPageNum\"><span id='pageNum'></span>/<span id='PPTPageTotal2'></span></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewZoomIn\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewZoomOut\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewFlip\"></div>\n" +
+        "    <div class=\"viewSplit\"></div>\n" +
+        "    <div class=\"viewBtn\" id=\"viewClose\"></div>\n" +
+        "</div>";
+    $('body').append(btnWrap);
+}
+
+$(function ($) {
+    $.fn.extend({
+        fullFadeIn:function(t,e,n,r){
+            top.postMessage('{"cmd":1,"toggle":true}', "*");
+            return this.fadeIn(t,e,n,r);
+        },
+        fullFadeOut:function(t,e,n,r){
+            setTimeout(function(){
+                top.postMessage('{"cmd":1,"toggle":false}', "*");
+            },300);
+            return this.fadeOut(t,e,n,r)
+        }
+    });
+})
+
+//查看大图 end
+
+//活动列表发放的图片查看大图
+function initLookBigImgActive(box) {
+    $('body').on('click', box + ' img', function () {
+        var index = 0;
+            $(box).viewer({
+            navbar: false,
+            url: 'data-orignal',
+            title: false,
+            toolbar: false,
+        });
+        viewer = $(box).data('viewer');
+        viewer.index = index;
+        viewer.show();
+        $('.viewBtnWrap').fullFadeIn();
+        $(".viewer-container").css("background-color","rgba(53,61,72,1)");
+        unactiveViewBtn();
+    })
+    
+}
+function showBigImg(url) {
+    if(typeof(viewer)!="undefined"&&viewer!=null){
+        try {viewer.destroy();}
+        catch(error){}
+        $(".viewer-container").remove();
+    }
+    $("#picCon").html("");
+    $("#picCon").append('<li><img src="'+url+'" alt="图片'+0+'"></li>');
+    $($("#picCon li")[0]).children("img").trigger("click");
+}

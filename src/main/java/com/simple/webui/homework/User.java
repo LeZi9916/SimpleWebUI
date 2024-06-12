@@ -1,5 +1,6 @@
 package com.simple.webui.homework;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -92,11 +93,24 @@ public class User
         catch (Exception e) { }
         return null;
     }
-    public void update(HttpSession session)
+    public void update(HttpSession session, ServletContext application)
     {
         sessionId = session.getId();
+        String userId = ((Long)(this.id)).toString();
+        String loginSessionId = (String) application.getAttribute(userId);
+
+        if(loginSessionId != null && !loginSessionId.equals(sessionId))
+            return;
+        application.setAttribute(userId,sessionId);
         session.setAttribute("user",this);
         session.setAttribute("userId",this.id);
+    }
+    public void logout(HttpSession session, ServletContext application)
+    {
+        String userId = ((Long)(this.id)).toString();
+        application.setAttribute(userId,null);
+        session.setAttribute("user",null);
+        session.setAttribute("userId",null);
     }
     public void update(Connection dbSession)
     {
