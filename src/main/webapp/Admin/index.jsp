@@ -1,4 +1,5 @@
 <%@ page import="com.simple.webui.homework.User" %>
+<%@ page import="com.simple.webui.homework.UserType" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
@@ -9,11 +10,17 @@
 		String userId = ((Long) _userId).toString();
 		String sessionId = (String) application.getAttribute(userId);
 		if (sessionId == null || !sessionId.equals(session.getId()))
+		{
 			response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
+			return;
+		}
 		user = (User) session.getAttribute("user");
 	}
 	else
+	{
 		response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
+		return;
+	}
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -109,35 +116,21 @@
 			<link href="./index_files/header.css" type="text/css" rel="stylesheet">
 			<div class="Header">
 				<div class="Logo fl">
-					<p style="font-size:20px;font-weight: bold">Neko WebUI</p>
+					<a href="">
+						<p style="font-size:20px;font-weight: bold">Neko WebUI</p>
+					</a>
                 </div>
 				<div class="headRight fr">
-					<div class="loginAfter fr">
-						<span class="headPic fl">
-							<img width="100%" height="100%" src="<%=request.getContextPath() + "/pic/" + user.getPicId() + ".jpg"%>">
-						</span>
-						<div class="name fl">
-							<p><%= user.getName()%></p>
-							<i class="arrowDown">
-							</i>
-							<ul class="loginCon Bubble_Popup">
-								<li>
-									<a href="index.jsp" one-link-mark="yes">
-										<i class="user">
-										</i>
-										My Space
-									</a>
-								</li>
-								<li>
-									<a href="logout.jsp"one-link-mark="yes">
-										<i class="eidt">
-										</i>
-										Exit
-									</a>
-								</li>
-							</ul>
+					<a href="userInfo.jsp">
+						<div class="loginAfter fr">
+							<span class="headPic fl">
+								<img width="100%" height="100%" src="<%=request.getContextPath() + "/pic/" + user.getPicId() + ".jpg"%>">
+							</span>
+							<div class="name fl">
+								<p><%= user.getName()%></p>
+							</div>
 						</div>
-					</div>
+					</a>
 				</div>
 			</div>
 			<div class="nav_side ">
@@ -154,15 +147,11 @@
 					</dl>
 					<div class="nav-content   stuNavigationList">
 						<ul>
-							<li opentype="0" dataname="hd" pageheader="0" class="curNav" id="nav_38235"
-							data="38235" shownewmark="0">
-								<a href="javascript:void(0);" title="任务" data-url="https://mobilelearn.chaoxing.com/page/active/stuActiveList"
-								one-link-mark="yes">
-									<i class="hd">
-									</i>
+							<li opentype="0" dataname="hd" pageheader="0" class="curNav" id="nav_38235" data="38235" shownewmark="0">
+								<a href="index.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											任务
+											首页
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -170,15 +159,11 @@
 									</span>
 								</a>
 							</li>
-							<li opentype="0" dataname="zj" pageheader="1" id="nav_38236" data="38236"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="章节" data-url="/mooc2-ans/mycourse/studentcourse"
-								one-link-mark="yes">
-									<i class="zj">
-									</i>
+							<li opentype="0" dataname="zj" pageheader="1" id="nav_38236" data="38236" shownewmark="0">
+								<a href="userInfo.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											章节
+											用户信息
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -186,15 +171,11 @@
 									</span>
 								</a>
 							</li>
-							<li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="讨论" data-url="https://groupweb.chaoxing.com/course/topic/topicList"
-								one-link-mark="yes">
-									<i class="tl">
-									</i>
+							<li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
+								<a href="userShopCart.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											讨论
+											购物车
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -202,31 +183,11 @@
 									</span>
 								</a>
 							</li>
-							<li opentype="0" dataname="zy" pageheader="8" id="nav_38238" data="38238"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="作业" data-url="https://mooc1.chaoxing.com/mooc2/work/list"
-								one-link-mark="yes">
-									<i class="zy">
-									</i>
+							<li opentype="0" dataname="zy" pageheader="8" id="nav_38238" data="38238" shownewmark="0">
+								<a href="about.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											作业
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
-								</a>
-							</li>
-							<li opentype="0" dataname="ks" pageheader="9" id="nav_38239" data="38239"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="考试" data-url="https://mooc1.chaoxing.com/exam-ans/mooc2/exam/exam-list"
-								one-link-mark="yes">
-									<i class="ks">
-									</i>
-									<span class="tag_new">
-										<span class="nav_content">
-											考试
+											关于
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -235,32 +196,17 @@
 								</a>
 							</li>
 						</ul>
+				<%
+					if(user.checkPermission(UserType.MERCHANT))
+					{
+						%>
 						<ul>
 							<li opentype="0" dataname="zl" pageheader="3" id="nav_38240" data="38240"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="资料" data-url="/mooc2-ans/coursedata/stu-datalist"
-								one-link-mark="yes">
-									<i class="zl">
-									</i>
+								shownewmark="0">
+								<a href="itemManager.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											资料
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
-								</a>
-							</li>
-							<li opentype="0" dataname="ctj" pageheader="4" id="nav_38241" data="38241"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="错题集" data-url="/mooc2-ans/wrongque/page"
-								one-link-mark="yes">
-									<i class="ctj">
-									</i>
-									<span class="tag_new">
-										<span class="nav_content">
-											错题集
+											商品管理
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -269,16 +215,20 @@
 								</a>
 							</li>
 						</ul>
+						<%
+					}
+				%>
+				<%
+					if(user.checkPermission(UserType.ADMIN))
+					{
+						%>
 						<ul>
 							<li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="学习记录" data-url="https://stat2-ans.chaoxing.com/study-data/index"
-								one-link-mark="yes">
-									<i class="cj">
-									</i>
+								shownewmark="0">
+								<a href="userlist.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											学习记录
+											用户列表
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -286,15 +236,16 @@
 									</span>
 								</a>
 							</li>
-							<li opentype="0" dataname="zsd" pageheader="12" id="nav_38243" data="38243"
-							shownewmark="0">
-								<a href="javascript:void(0);" title="知识图谱" data-url="https://stat2-ans.chaoxing.com/study-knowledge/index"
-								one-link-mark="yes">
-									<i class="zsd">
-									</i>
+						</ul>
+						<%
+					}
+				%>
+						<ul>
+							<li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242" shownewmark="0">
+								<a href="logout.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
-											知识图谱
+											登出
 										</span>
 										<b class="nvaNewMark" style="display: none;">
 											NEW
@@ -326,55 +277,16 @@
 
 				<div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
 					<div class="main task-list">
-						<div id="stuRenwuListFocus" tabindex="15" aria-label="任务已刷新，请按tab键" role="option" class="element-invisible-hidden"></div>
-						<div class="top-back"><h2 id="classObjName" tabindex="16" title="软件2304-2305">软件2304-2305</h2></div>
+						<div class="top-back">
+							<h2 id="classObjName" tabindex="16" >
+								<%=user.getName()%> , 欢迎回来!
+							</h2>
+						</div>
 						<div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
 						<div tabindex="17" class="null-data" style="display: none;">no Task</div>
 						<div class="has-content" style="">
-							<div class="filter" style="display: none;">
-								<span class="title">Filtrate</span>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio" checked="checked">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock"> All</div>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">已完成</div>
-								<span class="ipt-radio circl-choosed">
-									<input name="group-radio" type="radio">
-									<i class="icon-radio"></i>
-								</span>
-								<div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">未完成</div>
-							</div>
-							<div class="bottomList">
-								<div tabindex="18" class="status">In Progress<span aria-label="0个">（0）</span></div>
-								<ul></ul> <!----> <ul></ul>
-								<div tabindex="19" class="status">Completed<span aria-label="2个">（2）</span></div>
-								<ul>
-									<li tabindex="20" activeid="1000095946237" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-										<div aria-label="签到" class="tag icon-signin-g"></div>
-										<div class="right-content">
-											<p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-											<div class="clearfix"></div> <!---->
-										</div> <!---->
-										<div aria-label="05月29日 16时35分" class="time">End Time：05-29 16:35</div>
-										<div class="clearfix"></div>
-									</li>
-									<li tabindex="21" activeid="1000095415768" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-										<div aria-label="签到" class="tag icon-signin-g"></div>
-										<div class="right-content"><p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-											<div class="clearfix"></div> <!---->
-										</div> <!---->
-										<div aria-label="05月22日 16时37分" class="time">End Time：05-22 16:37</div>
-										<div class="clearfix"></div>
-									</li>
-								</ul>
-							</div>
+							<!-- List  -->
 						</div>
-						<div id="stuRenwuListFocusEnd" tabindex="22" aria-label="已阅读完" role="option" data-read="已阅读完" class="element-invisible-hidden"></div>
 					</div>
 				</div>
 			</div>

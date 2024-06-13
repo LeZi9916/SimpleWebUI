@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 
-public class User
+public class User implements IUpdatable
 {
     long id;
     String name;
@@ -99,12 +99,11 @@ public class User
         String userId = ((Long)(this.id)).toString();
         String loginSessionId = (String) application.getAttribute(userId);
 
-        if(loginSessionId != null && !loginSessionId.equals(sessionId))
-            return;
         application.setAttribute(userId,sessionId);
         session.setAttribute("user",this);
         session.setAttribute("userId",this.id);
     }
+    public boolean checkPermission(int target) { return  this.userType >= target; }
     public void logout(HttpSession session, ServletContext application)
     {
         String userId = ((Long)(this.id)).toString();

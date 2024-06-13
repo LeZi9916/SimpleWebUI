@@ -1,4 +1,3 @@
-<%@ page import="com.simple.webui.homework.User" %>
 <%@ page import="static com.simple.webui.homework.Methods.getErrMsg" %>
 <%@ page import="com.simple.webui.homework.User" %>
 <%@ page import="java.sql.Connection" %>
@@ -6,6 +5,7 @@
 <%@ page import="com.simple.webui.homework.LoginResult" %>
 <%@ page import="static com.simple.webui.homework.Methods.generateUserId" %>
 <%@ page import="com.simple.webui.homework.Info" %>
+<%@ page import="com.simple.webui.homework.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
 
@@ -28,18 +28,14 @@
             }
             else
             {
-                Connection dbSession = (Connection) application.getAttribute("dbSession");
-                if(dbSession == null)
-                {
-                    dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
-                    application.setAttribute("dbSession",dbSession);
-                }
+                Connection dbSession = com.simple.webui.homework.Methods.checkDbAlive(application);
                 long id = generateUserId(dbSession);
                 String hash = User.getStrHash(pwd);
                 User newUser = new User(id,name,null,hash,0,0);
                 newUser.update(session,application);
                 newUser.update(dbSession);
                 response.sendRedirect(request.getContextPath() + "/Admin/success.jsp");
+                return;
             }
         }
     }

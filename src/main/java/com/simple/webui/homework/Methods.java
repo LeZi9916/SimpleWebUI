@@ -1,5 +1,6 @@
 package com.simple.webui.homework;
 
+import javax.servlet.ServletContext;
 import java.sql.*;
 import java.util.Random;
 
@@ -37,9 +38,50 @@ public final class Methods
             catch (Exception ignored) {   }
         }
     }
+    public static  String getUserGroup(int userType)
+    {
+        switch (userType)
+        {
+            case 0:
+                return "User";
+            case 1:
+                return "Merchant";
+            case 2:
+                return "Admin";
+            case 3:
+                return "Root";
+            default:
+                return "Unknown";
+        }
+    }
     public static Connection ConnectDb() throws SQLException, ClassNotFoundException
     {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
+    }
+    public static Connection checkDbAlive(ServletContext application)
+    {
+        try
+        {
+            Connection dbSession = (Connection) application.getAttribute("dbSession");
+            if(dbSession == null)
+            {
+                dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
+                application.setAttribute("dbSession",dbSession);
+            }
+            return dbSession;
+        }
+        catch (Exception ignored)
+        {
+            return null;
+        }
+    }
+    public static boolean stringIsEmptyOrNull(String s)
+    {
+        return s == null || s.isEmpty();
+    }
+    public static <T extends IUpdatable>void update(T obj,Connection dbSession)
+    {
+        obj.update(dbSession);
     }
 }

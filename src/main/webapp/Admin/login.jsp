@@ -8,7 +8,10 @@
         String userId = ((Long) _userId).toString();
         String sessionId = (String) application.getAttribute(userId);
         if (sessionId != null && sessionId.equals(session.getId()))
+        {
             response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+            return;
+        }
     }
 %>
 <%
@@ -21,20 +24,15 @@
         {
             long id  = Long.parseLong(_id);
             String hash = User.getStrHash(pwd);
-            Connection dbSession = (Connection) application.getAttribute("dbSession");
-            if(dbSession == null)
-            {
-                dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
-                application.setAttribute("dbSession",dbSession);
-            }
 
-            User user = User.deserialize(dbSession,id);
+            User user = User.deserialize(Methods.checkDbAlive(application),id);
             if(user == null || !user.comparePassword(hash))
                 request.setAttribute("loginResult", LoginResult.LOGIN_UNKNOWN_PASSWORD_OR_USERID);
             else
             {
                 user.update(session,application);
                 response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+                return;
             }
         }
     }
