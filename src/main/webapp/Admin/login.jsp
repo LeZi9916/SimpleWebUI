@@ -1,10 +1,5 @@
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="static com.simple.webui.homework.Methods.getErrMsg" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="com.simple.webui.homework.LoginResult" %>
-<%@ page import="com.simple.webui.homework.Info" %>
+<%@ page import="com.simple.webui.homework.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     Object _userId = session.getAttribute("userId");
@@ -235,7 +230,7 @@ document.body.className = document.body.className.replace('no-js', 'js');
         if(_loginResult != null)
         {
     %>
-    <div id="login_error" class="notice notice-error"><%=getErrMsg((int)_loginResult)%></div>
+    <div id="login_error" class="notice notice-error"><%=Methods.getErrMsg((int)_loginResult)%></div>
     <%
         }
     %>
