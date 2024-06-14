@@ -1,6 +1,7 @@
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="com.simple.webui.homework.UserType" %>
-<%@ page import="com.simple.webui.homework.Methods" %>
+<%@ page import="com.simple.webui.homework.*" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
@@ -22,6 +23,14 @@
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         return;
     }
+    Connection dbSession = Methods.checkDbAlive(application);
+    ShopCart userShopCart = ShopCart.deserialize(dbSession,user.getId());
+    Counting<Long>[] counted = CollectionHelper.Count(userShopCart.getBoxedItems());
+    int count = counted.length;
+    Item[] items = CollectionHelper.Select(userShopCart.getBoxedItems(),
+                                           i -> Item.deserialize(dbSession,i));
+    Grouping<Long,Item>[] merchantAndItems = CollectionHelper.GroupBy(items,
+                                                              i -> i.getParentId());
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -277,50 +286,57 @@
     <div style="zoom: 1; background: transparent;">
         <div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
             <div class="main task-list">
-                <div id="stuRenwuListFocus" tabindex="15" aria-label="任务已刷新，请按tab键" role="option" class="element-invisible-hidden"></div>
-                <div class="top-back"><h2 id="classObjName" tabindex="16" title="软件2304-2305">软件2304-2305</h2></div>
+                <div class="top-back">
+                    <h2 id="classObjName" tabindex="16">购物车(<%=count%>)</h2>
+                </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
                 <div class="has-content" style="">
-                    <div class="filter" style="display: none;">
-                        <span class="title">Filtrate</span>
-                        <span class="ipt-radio circl-choosed">
-                            <input name="group-radio" type="radio" checked="checked">
-                            <i class="icon-radio"></i>
-                        </span>
-                        <div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock"> All</div>
-                        <span class="ipt-radio circl-choosed">
-                            <input name="group-radio" type="radio">
-                            <i class="icon-radio"></i>
-                        </span>
-                        <div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">已完成</div>
-                        <span class="ipt-radio circl-choosed">
-                            <input name="group-radio" type="radio">
-                            <i class="icon-radio"></i>
-                        </span>
-                        <div class="operate-list-group fs12 color181E33 lineheight20 inlineBlock">未完成</div>
-                    </div>
                     <div class="bottomList">
+                    <%
+                        for (Grouping<Long,Item> group: merchantAndItems)
+                        {
+                            long parentId = group.getKey();
+                            User merchant = User.deserialize(dbSession,parentId);
+                            %>
+                        <div tabindex="18" class="status"><%=merchant.getName()%></div>
+                        <ul>
+                            <%
+                            Item[] shopCartItems = group.getItems();
+                            for (Item item:shopCartItems)
+                            {
+                            %>
+                            <li>
+                                <div class="tag icon-signin-g"></div>
+                                <div class="right-content">
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%></p>
+                                </div> <!---->
+                                <div class="time">End Time：05-29 16:35</div>
+                            </li>
+                        </ul>
+                            <%
+                            }
+                        }
+                    %>
                         <div tabindex="18" class="status">In Progress<span aria-label="0个">（0）</span></div>
-                        <ul></ul> <!----> <ul></ul>
+                        <ul>
+
+                        </ul>
                         <div tabindex="19" class="status">Completed<span aria-label="2个">（2）</span></div>
                         <ul>
-                            <li tabindex="20" activeid="1000095946237" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-                                <div aria-label="签到" class="tag icon-signin-g"></div>
+                            <li>
+                                <div class="tag icon-signin-g"></div>
                                 <div class="right-content">
                                     <p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-                                    <div class="clearfix"></div> <!---->
                                 </div> <!---->
-                                <div aria-label="05月29日 16时35分" class="time">End Time：05-29 16:35</div>
-                                <div class="clearfix"></div>
+                                <div class="time">End Time：05-29 16:35</div>
                             </li>
-                            <li tabindex="21" activeid="1000095415768" activestatus="2" activetype="2" islook="1" userstatus="1" onclick="activeRowClick(this)" onkeyup="activeRowKeyUp(this)">
-                                <div aria-label="签到" class="tag icon-signin-g"></div>
-                                <div class="right-content"><p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-                                    <div class="clearfix"></div> <!---->
+                            <li>
+                                <div class="tag icon-signin-g"></div>
+                                <div class="right-content">
+                                    <p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
                                 </div> <!---->
-                                <div aria-label="05月22日 16时37分" class="time">End Time：05-22 16:37</div>
-                                <div class="clearfix"></div>
+                                <div class="time">End Time：05-22 16:37</div>
                             </li>
                         </ul>
                     </div>

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class CollectionHelp
+public final class CollectionHelper
 {
     public static<TIn,TOut> Grouping<TOut,TIn>[] GroupBy(TIn[] array,
                                                          IMatcher<TIn,TOut> matcher)
@@ -24,7 +24,12 @@ public final class CollectionHelp
         }
         List<Grouping<TOut,TIn>> _result = new ArrayList<>();
         result.forEach((o,i) -> _result.add(new Grouping<>(o,(TIn[]) i.toArray())));
-        return (Grouping<TOut, TIn>[]) _result.toArray();
+        return (Grouping<TOut, TIn>[]) _result.toArray(new Grouping[0]);
+    }
+    public static <TIn,TOut> Grouping<TOut,TIn>[] GroupBy(List<TIn> array,
+                                                          IMatcher<TIn,TOut> matcher)
+    {
+        return GroupBy((TIn[])array.toArray(),matcher);
     }
     public static<TElement> Counting<TElement>[] Count(TElement[] array)
     {
@@ -41,7 +46,11 @@ public final class CollectionHelp
         }
         List<Counting<TElement>> result = new ArrayList<>();
         counted.forEach((k,v) -> result.add(new Counting<TElement>(k,v)));
-        return (Counting<TElement>[]) result.toArray();
+        return (Counting<TElement>[]) result.toArray(new Counting[0]);
+    }
+    public static<TElement> Counting<TElement>[] Count(List<TElement> array)
+    {
+        return Count((TElement[])array.toArray());
     }
     public static<TElement> TElement[] Where(TElement[] array,
                                              IMatcher<TElement,Boolean> matcher)
@@ -52,6 +61,11 @@ public final class CollectionHelp
                 result.add(element);
         return (TElement[]) result.toArray();
     }
+    public static<TElement> TElement[] Where(List<TElement> array,
+                                             IMatcher<TElement,Boolean> matcher)
+    {
+        return Where((TElement[])array.toArray(),matcher);
+    }
     public static<TIn,TOut> TOut[] Select(TIn[] array,
                                           IMatcher<TIn,TOut> matcher)
     {
@@ -60,5 +74,10 @@ public final class CollectionHelp
             result.add(matcher.Compare(element));
 
         return (TOut[]) result.toArray();
+    }
+    public static <TIn,TOut> TOut[] Select(List<TIn> array,
+                                           IMatcher<TIn,TOut> matcher)
+    {
+        return  Select((TIn[]) array.toArray(),matcher);
     }
 }

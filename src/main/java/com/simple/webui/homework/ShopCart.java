@@ -19,6 +19,13 @@ public class ShopCart implements IUpdatable
     }
     public long getId() { return id; }
     public long[] getItems() { return items; }
+    public Long[] getBoxedItems()
+    {
+        Long[] result = new Long[items.length];
+        for (int i = 0; i < result.length; i++)
+            result[i] = items[i];
+        return result;
+    }
     public void setItems(long[] items) { this.items = items; }
     public void addItem(long itemId)
     {

@@ -1,6 +1,6 @@
 package com.simple.webui.homework;
 
-public interface IMatcher<TInput,TOutput>
+public interface IMatcher<TIn,TOut>
 {
-    TOutput Compare(TInput input);
+    TOut Compare(TIn input);
 }
