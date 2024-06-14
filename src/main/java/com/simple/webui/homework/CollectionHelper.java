@@ -26,11 +26,6 @@ public final class CollectionHelper
         result.forEach((o,i) -> _result.add(new Grouping<>(o,(TIn[]) i.toArray())));
         return (Grouping<TOut, TIn>[]) _result.toArray(new Grouping[0]);
     }
-    public static <TIn,TOut> Grouping<TOut,TIn>[] GroupBy(List<TIn> array,
-                                                          IMatcher<TIn,TOut> matcher)
-    {
-        return GroupBy((TIn[])array.toArray(),matcher);
-    }
     public static<TElement> Counting<TElement>[] Count(TElement[] array)
     {
         Map<TElement, Long> counted = new HashMap<>();
@@ -48,36 +43,30 @@ public final class CollectionHelper
         counted.forEach((k,v) -> result.add(new Counting<TElement>(k,v)));
         return (Counting<TElement>[]) result.toArray(new Counting[0]);
     }
-    public static<TElement> Counting<TElement>[] Count(List<TElement> array)
-    {
-        return Count((TElement[])array.toArray());
-    }
     public static<TElement> TElement[] Where(TElement[] array,
-                                             IMatcher<TElement,Boolean> matcher)
+                                             IMatcher<TElement,Boolean> matcher,
+                                             TElement[] tempArray)
     {
         List<TElement> result = new ArrayList<>();
         for (TElement element:array)
             if(matcher.Compare(element))
                 result.add(element);
-        return (TElement[]) result.toArray();
+        return result.toArray(tempArray);
     }
     public static<TElement> TElement[] Where(List<TElement> array,
-                                             IMatcher<TElement,Boolean> matcher)
+                                             IMatcher<TElement,Boolean> matcher,
+                                             TElement[] tempArray)
     {
-        return Where((TElement[])array.toArray(),matcher);
+        return Where(array.toArray(tempArray),matcher,tempArray);
     }
     public static<TIn,TOut> TOut[] Select(TIn[] array,
-                                          IMatcher<TIn,TOut> matcher)
+                                          IMatcher<TIn,TOut> matcher,
+                                          TOut[] tempArray)
     {
         List<TOut> result = new ArrayList<>();
         for (TIn element:array)
             result.add(matcher.Compare(element));
 
-        return (TOut[]) result.toArray();
-    }
-    public static <TIn,TOut> TOut[] Select(List<TIn> array,
-                                           IMatcher<TIn,TOut> matcher)
-    {
-        return  Select((TIn[]) array.toArray(),matcher);
+        return result.toArray(tempArray);
     }
 }
