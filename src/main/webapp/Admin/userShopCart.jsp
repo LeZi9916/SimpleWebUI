@@ -28,9 +28,10 @@
     Counting<Long>[] counted = CollectionHelper.Count(userShopCart.getBoxedItems());
     int count = counted.length;
     Item[] items = CollectionHelper.Select(userShopCart.getBoxedItems(),
-                                           i -> Item.deserialize(dbSession,i));
+                                           i -> Item.deserialize(dbSession,i),new Item[0]);
     Grouping<Long,Item>[] merchantAndItems = CollectionHelper.GroupBy(items,
-                                                              i -> i.getParentId());
+                                                              i -> i.getParentId(),
+                                                              new Item[0]);
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -318,27 +319,6 @@
                             }
                         }
                     %>
-                        <div tabindex="18" class="status">In Progress<span aria-label="0个">（0）</span></div>
-                        <ul>
-
-                        </ul>
-                        <div tabindex="19" class="status">Completed<span aria-label="2个">（2）</span></div>
-                        <ul>
-                            <li>
-                                <div class="tag icon-signin-g"></div>
-                                <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-                                </div> <!---->
-                                <div class="time">End Time：05-29 16:35</div>
-                            </li>
-                            <li>
-                                <div class="tag icon-signin-g"></div>
-                                <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;">二维码签到</p>
-                                </div> <!---->
-                                <div class="time">End Time：05-22 16:37</div>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>

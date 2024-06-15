@@ -2,6 +2,8 @@ package com.simple.webui.homework;
 
 import javax.servlet.ServletContext;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public final class Methods
@@ -38,7 +40,7 @@ public final class Methods
             catch (Exception ignored) {   }
         }
     }
-    public static  String getUserGroup(int userType)
+    public static  String getUserTypeStr(int userType)
     {
         switch (userType)
         {
@@ -75,6 +77,20 @@ public final class Methods
         {
             return null;
         }
+    }
+    public static User[] getAllUser(Connection dbSession)
+    {
+        try
+        {
+            List<User> result = new ArrayList<>();
+            Statement statement = dbSession.createStatement();
+            String sql = "SELECT * FROM User";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next())
+                result.add(User.deserialize(resultSet));
+            return result.toArray(new User[0]);
+        }
+        catch(Exception e){ return new User[0]; }
     }
     public static boolean stringIsEmptyOrNull(String s)
     {

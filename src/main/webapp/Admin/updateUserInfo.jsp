@@ -5,8 +5,11 @@
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.simple.webui.homework.Methods" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="com.simple.webui.homework.UserType" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    User operator = null;
     User user = null;
     Object _userId = session.getAttribute("userId");
     if (_userId != null)
@@ -16,6 +19,7 @@
         if (sessionId == null || !sessionId.equals(session.getId()))
             response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         user = (User) session.getAttribute("user");
+        operator = user;
     }
     else
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
@@ -26,6 +30,7 @@
     String uploadPath = "";
     String newUsername = null;
     String newName = null;
+    String userType = null;
 
     File uploadDir = new File(uploadPath);
     if (!uploadDir.exists())
@@ -56,6 +61,8 @@
                             newName = item.getString();
                         else if("id".equals(item.getFieldName()))
                             id = item.getString();
+                        else if("userType".equals(item.getFieldName()))
+                            userType = item.getString();
                     }
                     else
                     {
@@ -67,6 +74,25 @@
         }
         catch (Exception ignored) { }
     }
+
+    Connection dbSession = Methods.checkDbAlive(application);
+    if(Methods.stringIsEmptyOrNull(id))
+    {
+        response.sendRedirect(request.getContextPath() + origin);
+        return;
+    }
+
+    long userId = Long.parseLong(id);
+    if(userId != operator.getId())
+    {
+        user = User.deserialize(dbSession,userId);
+        if(user == null || !operator.checkPermission(UserType.ADMIN))
+        {
+            response.sendRedirect(request.getContextPath() + origin);
+            return;
+        }
+    }
+
     if(uploadItem != null)
     {
         if(uploadType == null)
@@ -91,14 +117,22 @@
         if(uploadType.equals("user"))
             user.setPicId(user.getId());
     }
-    if(uploadType.equals("user"))
+
+    if(!Methods.stringIsEmptyOrNull(newName))
+        user.setName(newName);
+    if(!Methods.stringIsEmptyOrNull(newUsername))
+        user.setUsername(newUsername);
+    if(!Methods.stringIsEmptyOrNull(userType))
     {
-        if(!Methods.stringIsEmptyOrNull(newName))
-            user.setName(newName);
-        if(!Methods.stringIsEmptyOrNull(newUsername))
-            user.setUsername(newUsername);
-        user.update(session,application);
-        user.update(Methods.checkDbAlive(application));
+        int _userType = Integer.parseInt(userType);
+        if ((_userType < UserType.ADMIN ||
+                operator.checkPermission(UserType.ROOT)) &&
+                _userType <= UserType.ROOT)
+        {
+            user.setUserType(_userType);
+        }
     }
+    user.update(session,application);
+    user.update(dbSession);
     response.sendRedirect(request.getContextPath() + origin);
 %>

@@ -4,6 +4,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    User operator = null;
     User user = null;
     Object _userId = session.getAttribute("userId");
     if (_userId != null)
@@ -15,12 +16,33 @@
             response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
             return;
         }
-        user = (User) session.getAttribute("user");
+        user = User.deserialize(Methods.checkDbAlive(application),Long.parseLong(userId));
+        user.update(session,application);
+        operator = user;
     }
     else
     {
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         return;
+    }
+    String param = request.getParameter("userId");
+    if(param != null)
+    {
+        if(user.checkPermission(UserType.ADMIN))
+        {
+            User _user = User.deserialize(Methods.checkDbAlive(application),Long.parseLong(param));
+            if(_user == null)
+            {
+                response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+                return;
+            }
+            user = _user;
+        }
+        else
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+            return;
+        }
     }
 %>
 <!DOCTYPE html>
@@ -294,14 +316,24 @@
                         </div>
                         <div style="flex: 1;">
                             <input type="hidden" name="id" value="<%=user.getId()%>">
-                            <input type="hidden" name="originUrl" value="/Admin/userInfo.jsp">
+                            <input type="hidden" name="originUrl" value="/Admin/userInfo.jsp?userId=<%=user.getId()%>">
                             <input type="hidden" name="uploadType" value="user">
                             <p style="font-size: 20px">用户ID : <%=user.getId()%></p>
                             <p style="font-size: 20px">昵称 :</p>
                             <input type="text" name="name" placeholder="<%=user.getName()%>" style="font-size:20px;">
                             <p style="font-size: 20px">用户名 :</p>
                             <input type="text" name="username" placeholder="<%=user.getUsername() == null ? "未设置" : user.getUsername()%>" style="font-size:20px;">
-                            <p style="font-size: 20px">用户组 : <%=Methods.getUserGroup(user.getUserType())%></p>
+                            <p></p>
+                            <label style="font-size: 20px;">
+                                用户组 :
+                                <select name="userType" style="font-size:20px" <%=!user.checkPermission(UserType.ADMIN) || operator.getId() == user.getId() ? "disabled" : "" %>>
+                                    <option value="0" <%=user.getUserType() == 0 ? "selected" : ""%>>User</option>
+                                    <option value="1" <%=user.getUserType() == 1 ? "selected" : ""%>>Merchant</option>
+                                    <option value="2" <%=user.getUserType() == 2 ? "selected" : ""%> <%=!user.checkPermission(UserType.ROOT) ? "disabled" : "" %>>Admin</option>
+                                    <option value="3" <%=user.getUserType() == 3 ? "selected" : ""%> disabled>Root</option>
+                                </select>
+                            </label>
+                            <p></p>
                             <input type="submit" value="更新" style="padding: 10px 20px 10px 20px;font-size:20px">
                         </div>
                     </form>

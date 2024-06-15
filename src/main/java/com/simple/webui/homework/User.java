@@ -93,6 +93,19 @@ public class User implements IUpdatable
         catch (Exception e) { }
         return null;
     }
+    public static User deserialize(ResultSet result)
+    {
+        try
+        {
+            return new User(result.getLong("id"),
+                    result.getString("name"),
+                    result.getString("username"),
+                    result.getString("password"),
+                    result.getLong("picId"),
+                    result.getInt("userType"));
+        }
+        catch (Exception e) {return  null;}
+    }
     public void update(HttpSession session, ServletContext application)
     {
         sessionId = session.getId();

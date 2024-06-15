@@ -8,7 +8,8 @@ import java.util.Map;
 public final class CollectionHelper
 {
     public static<TIn,TOut> Grouping<TOut,TIn>[] GroupBy(TIn[] array,
-                                                         IMatcher<TIn,TOut> matcher)
+                                                         IMatcher<TIn,TOut> matcher,
+                                                         TIn[] tempArray)
     {
         Map<TOut, List<TIn>> result = new HashMap<>();
         for (TIn element: array)
@@ -18,13 +19,16 @@ public final class CollectionHelper
             if(result.containsKey(key))
                 grouped = result.get(key);
             else
+            {
                 grouped = new ArrayList<>();
+                result.put(key,grouped);
+            }
             grouped.add(element);
             result.replace(key,grouped);
         }
         List<Grouping<TOut,TIn>> _result = new ArrayList<>();
-        result.forEach((o,i) -> _result.add(new Grouping<>(o,(TIn[]) i.toArray())));
-        return (Grouping<TOut, TIn>[]) _result.toArray(new Grouping[0]);
+        result.forEach((o,i) -> _result.add(new Grouping<>(o,i.toArray(tempArray))));
+        return _result.toArray(new Grouping[0]);
     }
     public static<TElement> Counting<TElement>[] Count(TElement[] array)
     {
