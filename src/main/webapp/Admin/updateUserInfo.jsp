@@ -9,6 +9,9 @@
 <%@ page import="com.simple.webui.homework.UserType" %>
 <%@ page import="java.io.InputStream" %>
 <%@ page import="java.io.FileInputStream" %>
+<%@ page import="java.nio.file.Files" %>
+<%@ page import="java.nio.file.Paths" %>
+<%@ page import="java.nio.file.StandardCopyOption" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%!
     boolean isValidJPEG(File file)
@@ -131,16 +134,13 @@
         }
         String tempPath = uploadPath + File.separator + id + "_temp.jpg";
         String filePath = uploadPath + File.separator + id + ".jpg";
-        File storeFile = new File(tempPath);
-        if(storeFile.exists())
-            storeFile.delete();
-        uploadItem.write(storeFile);
-        if(isValidJPEG(storeFile))
+        File tempFile = new File(tempPath);
+        if(tempFile.exists())
+            tempFile.delete();
+        uploadItem.write(tempFile);
+        if(isValidJPEG(tempFile))
         {
-            storeFile = new File(filePath);
-            if(storeFile.exists())
-                storeFile.delete();
-            uploadItem.write(storeFile);
+            Files.copy(Paths.get(tempPath),Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             if(uploadType.equals("user"))
                 user.setPicId(user.getId());
         }

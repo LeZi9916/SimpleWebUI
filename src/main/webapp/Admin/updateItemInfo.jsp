@@ -9,6 +9,10 @@
 <%@ page import="com.simple.webui.homework.Methods" %>
 <%@ page import="java.io.FileInputStream" %>
 <%@ page import="java.io.InputStream" %>
+<%@ page import="java.nio.file.Files" %>
+<%@ page import="java.nio.file.StandardCopyOption" %>
+<%@ page import="java.nio.file.Path" %>
+<%@ page import="java.nio.file.Paths" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%!
     boolean isValidJPEG(File file)
@@ -108,11 +112,11 @@
 
         boolean isCreate = Boolean.parseBoolean(_isCreate);
         long itemId = Long.parseLong(_itemId);
-        Double price = Double.parseDouble(_price);
-        Integer count = Integer.parseInt(_count);
-        Boolean enable = Boolean.parseBoolean(_enable);
+        Double price = Methods.stringIsEmptyOrNull(_price) ? null: Double.parseDouble(_price);
+        Integer count = Methods.stringIsEmptyOrNull(_count) ? null : Integer.parseInt(_count);
+        Boolean enable = Methods.stringIsEmptyOrNull(_count) ? null : Boolean.parseBoolean(_enable);
 
-        if(enable)
+        if(isCreate)
             targetItem = new Item(itemId,name,count,price,0, operator.getId(),enable);
         else
             targetItem = Item.deserialize(dbSession,itemId);
@@ -122,16 +126,13 @@
             uploadPath = application.getRealPath("") + File.separator + "pic" + File.separator + "item";
             String tempPath = uploadPath + File.separator + targetItem.getId() + "_temp.jpg";
             String filePath = uploadPath + File.separator + targetItem.getId() + ".jpg";
-            File storeFile = new File(tempPath);
-            if(storeFile.exists())
-                storeFile.delete();
-            uploadItem.write(storeFile);
-            if(isValidJPEG(storeFile))
+            File tempFile = new File(tempPath);
+            if(tempFile.exists())
+                tempFile.delete();
+            uploadItem.write(tempFile);
+            if(isValidJPEG(tempFile))
             {
-                storeFile = new File(filePath);
-                if(storeFile.exists())
-                    storeFile.delete();
-                uploadItem.write(storeFile);
+                Files.copy(Paths.get(tempPath),Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
                 targetItem.setPicId(targetItem.getId());
             }
         }
@@ -147,8 +148,13 @@
         response.sendRedirect(request.getContextPath() + originUrl);
         return;
     }
-    catch(Exception e ){}
+    catch(Exception e )
+    {
+        e.toString();
+        response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+        return;
+    }
 
-    response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+
 
 %>

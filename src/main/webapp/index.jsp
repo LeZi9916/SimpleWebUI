@@ -144,7 +144,7 @@
                             </div>
                             <div class="a4bIc">
                                 <div class="YacQv"></div>
-                                <textarea class="gLFyf" value="" name="keyword" rows="1" style=""></textarea>
+                                <input type="text" class="gLFyf" value="" name="keyword" rows="1" style="">
                             </div>
                         </div>
                     </div>

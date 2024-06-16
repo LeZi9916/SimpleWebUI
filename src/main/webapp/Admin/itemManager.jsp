@@ -308,11 +308,11 @@
                                 <div class="time"><a href="del.jsp?type=item&id=<%=item.getId()%>&originUrl=/Admin/itemManager.jsp">删除</a></div>
                                 <div class="time" style="right:70px"><a href="itemInfo.jsp?itemId=<%=item.getId()%>">修改</a></div>
                             </li>
-                        </ul>
                         <%
                                 }
                             }
                         %>
+                        </ul>
                     </div>
                 </div>
             </div>

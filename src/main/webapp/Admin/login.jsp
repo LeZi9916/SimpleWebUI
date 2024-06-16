@@ -31,7 +31,10 @@
             else
             {
                 user.update(session,application);
-                response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+                if(request.getParameter("originUrl") != null)
+                    response.sendRedirect(request.getContextPath() + request.getParameter("originUrl"));
+                else
+                    response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
                 return;
             }
         }

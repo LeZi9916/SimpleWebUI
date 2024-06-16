@@ -122,6 +122,20 @@ public final class Methods
         }
         catch(Exception e) { return new Item[0]; }
     }
+    public static Item[] getAllItem(Connection dbSession)
+    {
+        try
+        {
+            List<Item> result = new ArrayList<>();
+            Statement statement = dbSession.createStatement();
+            String sql = "SELECT * FROM Item";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next())
+                result.add(Item.deserialize(resultSet));
+            return result.toArray(new Item[0]);
+        }
+        catch(Exception e) { return new Item[0]; }
+    }
     public static boolean stringIsEmptyOrNull(String s)
     {
         return s == null || s.isEmpty();
