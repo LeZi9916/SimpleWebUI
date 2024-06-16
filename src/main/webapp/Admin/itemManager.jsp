@@ -303,11 +303,10 @@
                             <li>
                                 <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%></p>
-                                </div> <!--
-                                <div class="time"><a href="delAccount.jsp?userId=<%=""%>">删除</a></div>
-                                <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=""%>">修改</a></div>
-                                -->
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单价:<%=item.getPrice()%>&nbsp;&nbsp;&nbsp;&nbsp;库存数:<%=item.getCount()%></p>
+                                </div>
+                                <div class="time"><a href="del.jsp?type=item&id=<%=item.getId()%>&originUrl=/Admin/itemManager.jsp">删除</a></div>
+                                <div class="time" style="right:70px"><a href="itemInfo.jsp?itemId=<%=item.getId()%>">修改</a></div>
                             </li>
                         </ul>
                         <%

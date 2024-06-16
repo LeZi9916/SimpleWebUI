@@ -82,7 +82,7 @@ public final class Methods
         try
         {
             Connection dbSession = (Connection) application.getAttribute("dbSession");
-            if(dbSession == null)
+            if(dbSession == null || dbSession.isClosed())
             {
                 dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
                 application.setAttribute("dbSession",dbSession);

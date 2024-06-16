@@ -2,7 +2,6 @@
 <%@ page import="com.simple.webui.homework.UserType" %>
 <%@ page import="com.simple.webui.homework.Methods" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     User operator = null;
     User user = null;

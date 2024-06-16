@@ -1,7 +1,6 @@
 <%@ page import="com.simple.webui.homework.User" %>
 <%@ page import="com.simple.webui.homework.UserType" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
 	User user = null;
 	Object _userId = session.getAttribute("userId");

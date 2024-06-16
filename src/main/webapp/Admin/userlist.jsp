@@ -304,7 +304,7 @@
                                 <div class="right-content">
                                     <p class="overHidden2 fl" style="margin-top: 10px;"><%=user.getName()%></p>
                                 </div> <!---->
-                                <div class="time"><a href="delAccount.jsp?userId=<%=user.getId()%>">删除</a></div>
+                                <div class="time"><a href="del.jsp?type=user&id=<%=user.getId()%>&originUrl=/Admin/userlist.jsp">删除</a></div>
                                 <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=user.getId()%>">修改</a></div>
                             </li>
                         </ul>

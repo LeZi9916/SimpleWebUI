@@ -344,7 +344,7 @@
                             <p style="font-size: 20px">单价 :</p>
                             <input type="number" step="0.01" name="price" placeholder="<%=targetItem.getPrice()%>" style="font-size:20px;">
                             <p style="font-size: 20px">库存数 :</p>
-                            <input type="number" step="1" name="count" placeholder="<%=targetItem.getPrice()%>" style="font-size:20px;">
+                            <input type="number" step="1" name="count" placeholder="<%=targetItem.getCount()%>" style="font-size:20px;">
                             <p></p>
                             <label style="font-size: 20px;">
                                 状态 :

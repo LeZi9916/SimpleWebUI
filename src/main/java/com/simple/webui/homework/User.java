@@ -90,8 +90,10 @@ public class User implements IUpdatable
                             result.getLong("picId"),
                             result.getInt("userType"));
         }
-        catch (Exception e) { }
-        return null;
+        catch (Exception e)
+        {
+            return null;
+        }
     }
     public static User deserialize(ResultSet result)
     {
