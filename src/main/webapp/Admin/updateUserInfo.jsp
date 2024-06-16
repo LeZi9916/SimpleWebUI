@@ -7,7 +7,27 @@
 <%@ page import="com.simple.webui.homework.Methods" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="com.simple.webui.homework.UserType" %>
+<%@ page import="java.io.InputStream" %>
+<%@ page import="java.io.FileInputStream" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%!
+    boolean isValidJPEG(File file)
+    {
+        try (InputStream input = new FileInputStream(file))
+        {
+            byte[] header = new byte[2];
+            if (input.read(header) != 2) {
+                return false;
+            }
+            int soi = ((header[0] & 0xFF) << 8) | (header[1] & 0xFF);
+            return soi == 0xFFD8;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+%>
 <%
     User operator = null;
     User user = null;
@@ -109,13 +129,21 @@
             response.sendRedirect(request.getContextPath() + origin);
             return;
         }
+        String tempPath = uploadPath + File.separator + id + "_temp.jpg";
         String filePath = uploadPath + File.separator + id + ".jpg";
-        File storeFile = new File(filePath);
+        File storeFile = new File(tempPath);
         if(storeFile.exists())
             storeFile.delete();
         uploadItem.write(storeFile);
-        if(uploadType.equals("user"))
-            user.setPicId(user.getId());
+        if(isValidJPEG(storeFile))
+        {
+            storeFile = new File(filePath);
+            if(storeFile.exists())
+                storeFile.delete();
+            uploadItem.write(storeFile);
+            if(uploadType.equals("user"))
+                user.setPicId(user.getId());
+        }
     }
 
     if(!Methods.stringIsEmptyOrNull(newName))

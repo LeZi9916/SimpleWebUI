@@ -40,6 +40,22 @@ public final class Methods
             catch (Exception ignored) {   }
         }
     }
+    public static long generateItemId(Connection dbSession)
+    {
+        Random rd = new Random();
+        while(true)
+        {
+            long id = rd.nextInt();
+            try
+            {
+                ResultSet result = dbSession.prepareStatement("SELECT * FROM Item WHERE id=" + id)
+                        .executeQuery();
+                if(!result.isBeforeFirst())
+                    return id;
+            }
+            catch (Exception ignored) {   }
+        }
+    }
     public static  String getUserTypeStr(int userType)
     {
         switch (userType)
@@ -91,6 +107,20 @@ public final class Methods
             return result.toArray(new User[0]);
         }
         catch(Exception e){ return new User[0]; }
+    }
+    public static Item[] getAllItem(Connection dbSession,long parentId)
+    {
+        try
+        {
+            List<Item> result = new ArrayList<>();
+            Statement statement = dbSession.createStatement();
+            String sql = "SELECT * FROM Item WHERE parentId =" + parentId;
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next())
+                result.add(Item.deserialize(resultSet));
+            return result.toArray(new Item[0]);
+        }
+        catch(Exception e) { return new Item[0]; }
     }
     public static boolean stringIsEmptyOrNull(String s)
     {

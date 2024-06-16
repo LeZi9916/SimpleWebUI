@@ -1,10 +1,12 @@
-<%@ page import="com.simple.webui.homework.*" %>
+<%@ page import="com.simple.webui.homework.User" %>
+<%@ page import="com.simple.webui.homework.UserType" %>
+<%@ page import="com.simple.webui.homework.Methods" %>
+<%@ page import="com.simple.webui.homework.Item" %>
 <%@ page import="java.sql.Connection" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    boolean isCreate = false;
+    User operator = null;
     User user = null;
     Object _userId = session.getAttribute("userId");
     if (_userId != null)
@@ -16,7 +18,9 @@
             response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
             return;
         }
-        user = (User) session.getAttribute("user");
+        user = User.deserialize(Methods.checkDbAlive(application),Long.parseLong(userId));
+        user.update(session,application);
+        operator = user;
     }
     else
     {
@@ -24,8 +28,42 @@
         return;
     }
     Connection dbSession = Methods.checkDbAlive(application);
-    Item[] allItem = Methods.getAllItem(dbSession,user.getId());
-    Grouping<Boolean,Item>[] grouped = CollectionHelper.GroupBy(allItem, i -> i.isEnable(), new Item[0]);
+    Item targetItem = null;
+    String _isCreate = request.getParameter("isCreate");
+    String id = request.getParameter("itemId");
+    if(!Methods.stringIsEmptyOrNull(id))
+    {
+        targetItem = Item.deserialize(dbSession,Long.parseLong(id));
+
+        if(targetItem == null ||
+                (targetItem.getParentId() != operator.getId() && operator.checkPermission(UserType.ADMIN)))
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+            return;
+        }
+    }
+    else if(!Methods.stringIsEmptyOrNull(_isCreate))
+    {
+        isCreate = Boolean.parseBoolean(_isCreate);
+        if(isCreate && operator.checkPermission(UserType.MERCHANT))
+        {
+            long itemId = Methods.generateItemId(dbSession);
+            targetItem = new Item(itemId,
+                                  "请输入商品名称",1,0,0,
+                                  operator.getId(),
+                                  true);
+        }
+        else
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+            return;
+        }
+    }
+    else
+    {
+        response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -154,50 +192,50 @@
                 <ul>
                     <li opentype="0" dataname="hd" pageheader="0"  id="nav_38235" data="38235" shownewmark="0">
                         <a href="index.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    首页
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											首页
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                     <li opentype="0" dataname="zj" pageheader="1" id="nav_38236" data="38236" shownewmark="0">
                         <a href="userInfo.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    用户信息
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											用户信息
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                     <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
                         <a href="userShopCart.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    购物车
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											购物车
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                     <li opentype="0" dataname="zy" pageheader="8" id="nav_38238" data="38238" shownewmark="0">
                         <a href="about.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    关于
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											关于
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                 </ul>
@@ -209,14 +247,14 @@
                     <li opentype="0" dataname="zl" pageheader="3" class="curNav" id="nav_38240" data="38240"
                         shownewmark="0">
                         <a href="itemManager.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    商品管理
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											商品管理
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                 </ul>
@@ -231,14 +269,14 @@
                     <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242"
                         shownewmark="0">
                         <a href="userlist.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    用户列表
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											用户列表
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                 </ul>
@@ -248,14 +286,14 @@
                 <ul>
                     <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242" shownewmark="0">
                         <a href="logout.jsp">
-                            <span class="tag_new">
-                                <span class="nav_content">
-                                    登出
-                                </span>
-                                <b class="nvaNewMark" style="display: none;">
-                                    NEW
-                                </b>
-                            </span>
+									<span class="tag_new">
+										<span class="nav_content">
+											登出
+										</span>
+										<b class="nvaNewMark" style="display: none;">
+											NEW
+										</b>
+									</span>
                         </a>
                     </li>
                 </ul>
@@ -279,48 +317,52 @@
      allowfullscreen="true" allow="microphone;clipboard-write" src="./index_files/stuActiveList.html"
      style="position: absolute; inset: 52px 0px 0px 180px; border: 0px; width: 1868px; height: 931px;">
     <div style="zoom: 1; background: transparent;">
+
         <div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
             <div class="main task-list">
                 <div class="top-back">
-                    <h2 id="classObjName" tabindex="16">我的商品(<%=allItem.length%>)</h2>
-                    <p style="font-size: 20px"><a href="itemInfo.jsp?isCreate=true">新建商品</a></p>
+                    <h2 id="classObjName" tabindex="16" >
+                        商品信息
+                    </h2>
                 </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
-                <div class="has-content" style="">
-                    <div class="bottomList">
-                        <%
-                            for (Grouping<Boolean, Item> group: grouped)
-                            {
-                        %>
-                        <div tabindex="18" class="status"><%=group.getKey() ? "已上架商品" : "未上架商品"%>(<%=group.getItems().length%>)</div>
-                        <ul>
-                            <%
-                                Item[] items = group.getItems();
-                                for (Item item :items)
-                                {
-                            %>
-                            <li>
-                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
-                                <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%></p>
-                                </div> <!--
-                                <div class="time"><a href="delAccount.jsp?userId=<%=""%>">删除</a></div>
-                                <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=""%>">修改</a></div>
-                                -->
-                            </li>
-                        </ul>
-                        <%
-                                }
-                            }
-                        %>
-                    </div>
+                <div class="has-content" style="display: flex; height: 450px;justify-content: center; align-items: center; position: relative;align-items: center;">
+                    <!-- List  -->
+                    <form action="updateItemInfo.jsp" method="post" enctype="multipart/form-data" style="display: flex; height: 450px;justify-content: center; align-items: center; position: relative;align-items: center;">
+                        <div style="flex: 0 0 50%; display: flex; justify-content: center; align-items: center;margin: auto 0;flex-direction:column">
+                            <img height="240px" src="<%=request.getContextPath() + "/pic/item/" + targetItem.getPicId() + ".jpg"%>">
+                            <input type="file" name="file" id="file">
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="hidden" name="isCreate" value="<%=isCreate%>">
+                            <input type="hidden" name="itemId" value="<%=targetItem.getId()%>">
+                            <input type="hidden" name="originUrl" value="<%=isCreate ? "/Admin/itemManager.jsp" :"/Admin/itemInfo.jsp?itemId=" + targetItem.getId()%>">
+                            <input type="hidden" name="uploadType" value="item">
+                            <p style="font-size: 20px">商品昵称 :</p>
+                            <input type="text" name="name" placeholder="<%=targetItem.getItemName()%>" style="font-size:20px;">
+                            <p style="font-size: 20px">单价 :</p>
+                            <input type="number" step="0.01" name="price" placeholder="<%=targetItem.getPrice()%>" style="font-size:20px;">
+                            <p style="font-size: 20px">库存数 :</p>
+                            <input type="number" step="1" name="count" placeholder="<%=targetItem.getPrice()%>" style="font-size:20px;">
+                            <p></p>
+                            <label style="font-size: 20px;">
+                                状态 :
+                                <select name="enable" style="font-size:20px">
+                                    <option value="true" <%=targetItem.isEnable() ? "selected" : ""%>>上架</option>
+                                    <option value="false" <%=!targetItem.isEnable() ? "selected" : ""%>>下架</option>
+                                </select>
+                            </label>
+                            <p></p>
+                            <input type="submit" value="更新" style="padding: 10px 20px 10px 20px;font-size:20px">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <input type="hidden" value="chrome_extension" data-id="abcdefghijk" name="chrome_extension">
 </div>
+<input type="hidden" value="chrome_extension" data-id="abcdefghijk" name="chrome_extension">
 </body>
 
 </html>
