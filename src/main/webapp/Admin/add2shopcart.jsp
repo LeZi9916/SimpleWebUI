@@ -19,7 +19,7 @@
         String sessionId = (String) application.getAttribute(userId);
         if (sessionId == null || !sessionId.equals(session.getId()))
         {
-            response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add.jsp");
+            response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add2shopcart.jsp");
             return;
         }
         user = User.deserialize(Methods.checkDbAlive(application),Long.parseLong(userId));
@@ -28,7 +28,7 @@
     }
     else
     {
-        response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add.jsp");
+        response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add2shopcart.jsp");
         return;
     }
     String _itemId = request.getParameter("itemId");

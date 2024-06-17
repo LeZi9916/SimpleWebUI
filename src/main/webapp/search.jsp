@@ -227,7 +227,7 @@
                             <p style="margin: 0; padding: 5px 0;">商家: <%=User.deserialize(Methods.checkDbAlive(application),item.getParentId()).getName()%></p>
                             <p style="margin: 0; padding: 5px 0;">库存<%=item.getCount()%>件</p>
                             <p></p>
-                            <form action="add.jsp">
+                            <form action="Admin/add2shopcart.jsp">
                                 <%
                                     int min = 1;
                                     int max = 1;

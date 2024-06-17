@@ -138,7 +138,7 @@ public final class Methods
     }
     public static boolean stringIsEmptyOrNull(String s)
     {
-        return s == null || s.isEmpty();
+        return s == null || s.isEmpty() || s.equals("Null") || s.equals("null");
     }
     public static <T extends IUpdatable>void update(T obj,Connection dbSession)
     {

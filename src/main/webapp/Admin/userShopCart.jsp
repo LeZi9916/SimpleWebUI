@@ -299,26 +299,43 @@
                         {
                             long parentId = group.getKey();
                             User merchant = User.deserialize(dbSession,parentId);
+                            Long[] shopCartItemId = CollectionHelper.Select(group.getItems(),x -> x.getId(),new Long[0]);
+                            Counting<Long>[] itemsCounted = CollectionHelper.Count(shopCartItemId);
                             %>
-                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=group.getItems().length%>)</div>
+                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=itemsCounted.length%>)</div>
                         <ul>
                             <%
-                            Item[] shopCartItems = group.getItems();
-                            for (Item item:shopCartItems)
+                            for (Counting<Long> itemCounted: itemsCounted)
                             {
+                                Item item = Item.deserialize(dbSession,itemCounted.getKey());
                             %>
                             <li>
                                 <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%></p>
-                                </div> <!---->
-                                <div class="time">End Time：05-29 16:35</div>
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * itemCounted.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                                </div>
+                                <div class="time">
+                                    <form action="modifyShopCart.jsp">
+                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
+                                        <label>数量</label>
+                                        <input type="number" step="1" min="1" name="count" value="<%=itemCounted.getCount()%>" placeholder="<%=itemCounted.getCount()%>">
+                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
+                                        <input type="submit" class="time" value="保存">
+                                    </form>
+                                </div>
+                                <div>
+                                    <form action="delFromShopCart.jsp">
+                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
+                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
+                                        <input type="submit" class="time" value="移除">
+                                    </form>
+                                </div>
                             </li>
-                        </ul>
                             <%
                             }
                         }
                     %>
+                        </ul>
                     </div>
                 </div>
             </div>
