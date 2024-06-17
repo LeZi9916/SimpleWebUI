@@ -31,7 +31,7 @@
             else
             {
                 user.update(session,application);
-                if(request.getParameter("originUrl") != null)
+                if(!Methods.stringIsEmptyOrNull(request.getParameter("originUrl")))
                     response.sendRedirect(request.getContextPath() + request.getParameter("originUrl"));
                 else
                     response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
@@ -239,6 +239,7 @@ document.body.className = document.body.className.replace('no-js', 'js');
         Login
     </h1>
     <form name="loginform" id="loginform" action="login.jsp" method="post">
+        <input type="hidden" name="originUrl" value="<%=request.getParameter("originUrl")%>">
         <p>
             <label for="user_login">用户ID</label>
             <input type="text" name="userId" id="user_login" class="input" value="" size="20" autocapitalize="off"

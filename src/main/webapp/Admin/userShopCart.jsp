@@ -300,7 +300,7 @@
                             long parentId = group.getKey();
                             User merchant = User.deserialize(dbSession,parentId);
                             %>
-                        <div tabindex="18" class="status"><%=merchant.getName()%></div>
+                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=group.getItems().length%>)</div>
                         <ul>
                             <%
                             Item[] shopCartItems = group.getItems();
@@ -308,7 +308,7 @@
                             {
                             %>
                             <li>
-                                <div class="tag icon-signin-g"></div>
+                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
                                     <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%></p>
                                 </div> <!---->

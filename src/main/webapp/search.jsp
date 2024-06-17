@@ -132,18 +132,18 @@
 <body>
 <div class="L3eUgb">
     <div class="gb_qa gb_md gb_ib gb_i gb_Qc gb_2c" id="gb" style="background-color:rgba(32,33,36,1)">
-        <div class="gb_Dd gb_gb gb_rd">
-            <div></div>
-            <div class="gb_Vd" style="padding-top:20px">
+        <div class="gb_Dd gb_gb gb_rd lJ9FBc" style="padding-top:20px">
+            <%
+                Object _userId = session.getAttribute("userId");
+                if(_userId != null)
+                {
+            %>
+            <div class="gb_Vd">
                 <div class="gb_b gb_x gb_4f gb_K">
                     <div class="gb_f gb_fb gb_4f gb_K">
                         <%
-                            Object _userId = session.getAttribute("userId");
-                            String imgPath = "pic/0.jpg";
                             User user = (User) session.getAttribute("user");
-                            if(user != null)
-                                imgPath = "pic/" + user.getPicId() + ".jpg";
-
+                            String imgPath = "pic/" + user.getPicId() + ".jpg";
                         %>
                         <a class="gb_d gb_Ja gb_K" href="Admin/index.jsp">
                             <img class="gb_o gbii" src="<%=imgPath%>">
@@ -151,6 +151,18 @@
                     </div>
                 </div>
             </div>
+            <%
+                }
+                else
+                {
+            %>
+            <form action="Admin/login.jsp">
+                <input type="hidden" name="originUrl" value="/search.jsp?keyword=<%=keyword%>">
+                <input type="submit" value="登录">
+            </form>
+            <%
+                }
+            %>
         </div>
     </div>
     <div class="o3j99 LLD4me LS8OJ">
@@ -184,45 +196,65 @@
                         <div style="text-align: center;">
                             <input class="gNO89b" value="点击搜索" type="submit">
                         </div>
-                        <ul style="list-style-type: none;">
-                            <li>
-                                <%
-                                    if(result.length == 0)
-                                    {
-                                %>
-                                <h1>未找到匹配的搜索结果</h1>
-                                <%
-                                    }
-                                    else
-                                    {
-                                        for (Counting<Item> counting: result)
-                                        {
-                                            Item item = counting.getKey();
-                                %>
-                                <div style="display: flex; padding: 10px; width: 80%; margin: auto;" id="<%=item.getId()%>">
-                                    <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
-                                        <img src="pic/item/<%=item.getPicId()%>.jpg" style="height: 200px">
-                                    </div>
-                                    <div style="flex: 2; padding-left: 20px;">
-                                        <h2 style="margin: 0; padding: 5px 0;"><%=item.getItemName()%></h2>
-                                        <h3 style="margin: 0; padding: 5px 0;"><%=item.getPrice()%> CNY</h3>
-                                        <p style="margin: 0; padding: 5px 0;">库存<%=item.getCount()%>件</p>
-                                        <p></p>
-                                        <p><a href="add.jsp?itemId=<%=item.getId()%>&originUrl=search.jsp?keyword=<%=keyword%>#<%=item.getId()%>">加入购物车</a></p>
-                                        <p></p>
-                                        <p><%=User.deserialize(Methods.checkDbAlive(application),item.getParentId()).getName()%></p>
-                                    </div>
-                                </div>
-                                <%
-                                        }
-                                    }
-                                %>
-                            </li>
-                        </ul>
+
                     </div>
                 </div>
             </div>
         </form>
+        <div class="lJ9FBc A8SBwf">
+            <ul style="list-style-type: none;">
+                <li>
+                    <%
+                        if(result.length == 0)
+                        {
+                    %>
+                    <h1>未找到匹配的搜索结果</h1>
+                    <%
+                    }
+                    else
+                    {
+                        for (Counting<Item> counting: result)
+                        {
+                            Item item = counting.getKey();
+                    %>
+                    <div style="display: flex; padding: 10px; width: 80%; margin: auto;" id="<%=item.getId()%>">
+                        <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+                            <img src="pic/item/<%=item.getPicId()%>.jpg" style="height: 200px">
+                        </div>
+                        <div style="flex: 2; padding-left: 20px;">
+                            <h2 style="margin: 0; padding: 5px 0;"><%=item.getItemName()%></h2>
+                            <h3 style="margin: 0; padding: 5px 0;"><%=item.getPrice()%> CNY</h3>
+                            <p style="margin: 0; padding: 5px 0;">商家: <%=User.deserialize(Methods.checkDbAlive(application),item.getParentId()).getName()%></p>
+                            <p style="margin: 0; padding: 5px 0;">库存<%=item.getCount()%>件</p>
+                            <p></p>
+                            <form action="add.jsp">
+                                <%
+                                    int min = 1;
+                                    int max = 1;
+                                    if(item.getCount() > 0)
+                                        max = item.getCount();
+                                    else
+                                    {
+                                        min = 0;
+                                        max = 0;
+                                    }
+                                %>
+                                <input type="hidden" name="itemId" value="<%=item.getId()%>">
+                                <input type="hidden" name="originUrl" value="/search.jsp?keyword=<%=keyword%>#<%=item.getId()%>">
+                                <input type="number" step="1" name="count" value="<%=min%>" min="<%=min%>" max="<%=max%>" required <%=min == 0 ? "disabled":""%>>
+                                <input type="submit" value="加入购物车" <%=min == 0 ? "disabled":""%>>
+                            </form>
+                            <p></p>
+                            <p></p>
+                        </div>
+                    </div>
+                    <%
+                            }
+                        }
+                    %>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 </body>

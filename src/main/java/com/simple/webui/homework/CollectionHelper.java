@@ -35,7 +35,7 @@ public final class CollectionHelper
         Map<TElement, Long> counted = new HashMap<>();
         for (TElement element:array)
         {
-            if(counted.containsKey(element))
+            if(!counted.containsKey(element))
                 counted.put(element, 1L);
             else
             {
