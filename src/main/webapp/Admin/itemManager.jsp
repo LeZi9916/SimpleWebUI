@@ -188,6 +188,18 @@
                             </span>
                         </a>
                     </li>
+                    <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
+                        <a href="myOrder.jsp">
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    我的订单
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
+                        </a>
+                    </li>
                     <li opentype="0" dataname="zy" pageheader="8" id="nav_38238" data="38238" shownewmark="0">
                         <a href="about.jsp">
                             <span class="tag_new">
@@ -234,6 +246,19 @@
                             <span class="tag_new">
                                 <span class="nav_content">
                                     用户列表
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
+                        </a>
+                    </li>
+                    <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242"
+                        shownewmark="0">
+                        <a href="itemList.jsp">
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    商品列表
                                 </span>
                                 <b class="nvaNewMark" style="display: none;">
                                     NEW
@@ -318,7 +343,6 @@
             </div>
         </div>
     </div>
-    <input type="hidden" value="chrome_extension" data-id="abcdefghijk" name="chrome_extension">
 </div>
 </body>
 

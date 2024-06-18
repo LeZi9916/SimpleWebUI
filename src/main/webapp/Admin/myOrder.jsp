@@ -23,14 +23,10 @@
         return;
     }
     Connection dbSession = Methods.checkDbAlive(application);
-    ShopCart userShopCart = ShopCart.deserialize(dbSession,user.getId());
-    Counting<Long>[] counted = CollectionHelper.Count(userShopCart.getBoxedItems());
-    int count = counted.length;
-    Item[] items = CollectionHelper.Select(userShopCart.getBoxedItems(),
-                                           i -> Item.deserialize(dbSession,i),new Item[0]);
-    Grouping<Long,Item>[] merchantAndItems = CollectionHelper.GroupBy(items,
-                                                              i -> i.getParentId(),
-                                                              new Item[0]);
+    UserOrder[] sourceOrders = UserOrder.getSourceOrders(dbSession,user.getId());
+    Grouping<Integer,UserOrder>[] sourceOrderGroups = CollectionHelper.GroupBy(sourceOrders,o -> o.getState(),new UserOrder[0]);
+    UserOrder[] pendingOrders = UserOrder.getTargetOrders(dbSession,user.getId());
+    long count = sourceOrders.length + pendingOrders.length;
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -181,7 +177,7 @@
 									</span>
                         </a>
                     </li>
-                    <li opentype="0" dataname="tl" pageheader="2" class="curNav" id="nav_38237" data="38237" shownewmark="0">
+                    <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
                         <a href="userShopCart.jsp">
 									<span class="tag_new">
 										<span class="nav_content">
@@ -193,7 +189,7 @@
 									</span>
                         </a>
                     </li>
-                    <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
+                    <li opentype="0" dataname="tl" pageheader="2" class="curNav" id="nav_38237" data="38237" shownewmark="0">
                         <a href="myOrder.jsp">
                             <span class="tag_new">
                                 <span class="nav_content">
@@ -312,54 +308,93 @@
         <div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
             <div class="main task-list">
                 <div class="top-back">
-                    <h2 id="classObjName" tabindex="16">购物车(<%=count%>)</h2>
+                    <h2 id="classObjName" tabindex="16">我的订单(<%=count%>)</h2>
                 </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
                 <div class="has-content" style="">
                     <div class="bottomList">
-                    <%
-                        for (Grouping<Long,Item> group: merchantAndItems)
-                        {
-                            long parentId = group.getKey();
-                            User merchant = User.deserialize(dbSession,parentId);
-                            Long[] shopCartItemId = CollectionHelper.Select(group.getItems(),x -> x.getId(),new Long[0]);
-                            Counting<Long>[] itemsCounted = CollectionHelper.Count(shopCartItemId);
-                            %>
-                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=itemsCounted.length%>)</div>
+                        <%
+                            for (Grouping<Integer,UserOrder> orderGroup: sourceOrderGroups)
+                            {
+                                UserOrder[] userOrders = orderGroup.getItems();
+                                String stateStr = Methods.getOrderStateStr(orderGroup.getKey());
+                                Grouping<Long,UserOrder>[] orderGroups = CollectionHelper.GroupBy(userOrders,o -> o.getTarget(),new UserOrder[0]);
+                        %>
+                        <div tabindex="18" class="status"><%=stateStr%>(<%=userOrders.length%>)</div>
                         <ul>
                             <%
-                            for (Counting<Long> itemCounted: itemsCounted)
-                            {
-                                Item item = Item.deserialize(dbSession,itemCounted.getKey());
+                                for (Grouping<Long,UserOrder> group: orderGroups)
+                                {
+                                    //商家ID
+                                    Long parentId = group.getKey();
+                                    UserOrder[] orders = group.getItems();
+                                    User parent = User.deserialize(dbSession,parentId);
+                            %>
+                            <div tabindex="18" class="status"><%=parent.getName()%></div>
+                            <%
+                                    for (UserOrder order :orders)
+                                    {
+                                        Item item = Item.deserialize(dbSession,order.getItemId());
                             %>
                             <li>
                                 <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * itemCounted.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * order.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
                                 </div>
                                 <div class="time">
-                                    <form action="modifyShopCart.jsp">
-                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
-                                        <label>数量</label>
-                                        <input type="number" step="1" min="1" name="count" value="<%=itemCounted.getCount()%>" placeholder="<%=itemCounted.getCount()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
-                                        <input type="submit" class="time" value="保存">
-                                    </form>
+                                    <label>数量: <%=order.getCount()%></label>
                                 </div>
                                 <div>
                                     <form action="delFromShopCart.jsp">
-                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
-                                        <input type="submit" class="time" value="移除">
+                                        <input type="hidden" name="orderId" value="<%=order.getId()%>">
+                                        <input type="hidden" name="originUrl" value="/Admin/myOrder.jsp">
+                                        <input type="submit" class="time" value="取消订单">
                                     </form>
                                 </div>
                             </li>
                             <%
-                            }
-                        }
-                    %>
+                                    }
+                            %>
+                            <%
+                                }
+                            %>
                         </ul>
+                        <%
+                            }
+                            if(pendingOrders.length != 0)
+                            {
+                        %>
+                        <div tabindex="18" class="status">待处理(<%=pendingOrders.length%>)</div>
+                        <ul>
+                            <li>
+                            <%
+                                for (UserOrder order:pendingOrders)
+                                {
+                                    Item item = Item.deserialize(dbSession,order.getItemId());
+                            %>
+                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
+                                <div class="right-content">
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * order.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                                </div>
+                                <div class="time">
+                                    <label>数量: <%=order.getCount()%></label>
+                                </div>
+                                <div>
+                                    <form action="delFromShopCart.jsp">
+                                        <input type="hidden" name="orderId" value="<%=order.getId()%>">
+                                        <input type="hidden" name="originUrl" value="/Admin/myOrder.jsp">
+                                        <input type="submit" class="time" value="发货">
+                                    </form>
+                                </div>
+                            <%
+                                }
+                            %>
+                            </li>
+                        </ul>
+                        <%
+                            }
+                        %>
                     </div>
                 </div>
             </div>

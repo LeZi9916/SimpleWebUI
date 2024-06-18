@@ -41,7 +41,7 @@
 
     Connection dbSession = Methods.checkDbAlive(application);
     ShopCart shopCart = ShopCart.deserialize(dbSession, operator.getId());
-
+    Item targetItem = Item.deserialize(dbSession,itemId);
     if(count <= 0)
     {
         session.setAttribute("itemId",itemId);
@@ -49,6 +49,7 @@
         response.sendRedirect(request.getContextPath() + "/Admin/delFromShopCart.jsp");
         return;
     }
+    count = Math.min(count,targetItem.getCount());
     long diff = 0;
     Counting<Long>[] counted = CollectionHelper.Count(shopCart.getBoxedItems());
     for (Counting<Long> c: counted)

@@ -23,14 +23,11 @@
         return;
     }
     Connection dbSession = Methods.checkDbAlive(application);
-    ShopCart userShopCart = ShopCart.deserialize(dbSession,user.getId());
-    Counting<Long>[] counted = CollectionHelper.Count(userShopCart.getBoxedItems());
-    int count = counted.length;
-    Item[] items = CollectionHelper.Select(userShopCart.getBoxedItems(),
-                                           i -> Item.deserialize(dbSession,i),new Item[0]);
-    Grouping<Long,Item>[] merchantAndItems = CollectionHelper.GroupBy(items,
-                                                              i -> i.getParentId(),
-                                                              new Item[0]);
+    Item[] allItem = Methods.getAllItem(dbSession);
+    Grouping<Boolean,Item>[] grouped = CollectionHelper.GroupBy(allItem, i -> i.isEnable(), new Item[0]);
+    Grouping<Long,Item>[] merchantAndItems = CollectionHelper.GroupBy(allItem,
+                                                                    i -> i.getParentId(),
+                                                                    new Item[0]);
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -159,38 +156,38 @@
                 <ul>
                     <li opentype="0" dataname="hd" pageheader="0"  id="nav_38235" data="38235" shownewmark="0">
                         <a href="index.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											首页
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    首页
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
                     <li opentype="0" dataname="zj" pageheader="1" id="nav_38236" data="38236" shownewmark="0">
                         <a href="userInfo.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											用户信息
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    用户信息
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
-                    <li opentype="0" dataname="tl" pageheader="2" class="curNav" id="nav_38237" data="38237" shownewmark="0">
+                    <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
                         <a href="userShopCart.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											购物车
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    购物车
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
                     <li opentype="0" dataname="tl" pageheader="2" id="nav_38237" data="38237" shownewmark="0">
@@ -207,14 +204,14 @@
                     </li>
                     <li opentype="0" dataname="zy" pageheader="8" id="nav_38238" data="38238" shownewmark="0">
                         <a href="about.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											关于
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    关于
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -226,14 +223,14 @@
                     <li opentype="0" dataname="zl" pageheader="3" id="nav_38240" data="38240"
                         shownewmark="0">
                         <a href="itemManager.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											商品管理
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    商品管理
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -248,17 +245,17 @@
                     <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242"
                         shownewmark="0">
                         <a href="userlist.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											用户列表
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    用户列表
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
-                    <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242"
+                    <li opentype="0" dataname="cj" pageheader="6" class="curNav" id="nav_38242" data="38242"
                         shownewmark="0">
                         <a href="itemList.jsp">
                             <span class="tag_new">
@@ -278,14 +275,14 @@
                 <ul>
                     <li opentype="0" dataname="cj" pageheader="6" id="nav_38242" data="38242" shownewmark="0">
                         <a href="logout.jsp">
-									<span class="tag_new">
-										<span class="nav_content">
-											登出
-										</span>
-										<b class="nvaNewMark" style="display: none;">
-											NEW
-										</b>
-									</span>
+                            <span class="tag_new">
+                                <span class="nav_content">
+                                    登出
+                                </span>
+                                <b class="nvaNewMark" style="display: none;">
+                                    NEW
+                                </b>
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -312,53 +309,38 @@
         <div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
             <div class="main task-list">
                 <div class="top-back">
-                    <h2 id="classObjName" tabindex="16">购物车(<%=count%>)</h2>
+                    <h2 id="classObjName" tabindex="16">所有商品(<%=allItem.length%>)</h2>
+                    <p style="font-size: 20px"><a href="itemInfo.jsp?isCreate=true">新建商品</a></p>
                 </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
                 <div class="has-content" style="">
                     <div class="bottomList">
-                    <%
-                        for (Grouping<Long,Item> group: merchantAndItems)
-                        {
-                            long parentId = group.getKey();
-                            User merchant = User.deserialize(dbSession,parentId);
-                            Long[] shopCartItemId = CollectionHelper.Select(group.getItems(),x -> x.getId(),new Long[0]);
-                            Counting<Long>[] itemsCounted = CollectionHelper.Count(shopCartItemId);
-                            %>
-                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=itemsCounted.length%>)</div>
+                        <%
+                            for (Grouping<Long,Item> group: merchantAndItems)
+                            {
+                                long parentId = group.getKey();
+                                User merchant = User.deserialize(dbSession,parentId);
+                                Item[] items = group.getItems();
+                        %>
+                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=items.length%>)</div>
                         <ul>
                             <%
-                            for (Counting<Long> itemCounted: itemsCounted)
-                            {
-                                Item item = Item.deserialize(dbSession,itemCounted.getKey());
+                                for (Item item :items)
+                                {
                             %>
                             <li>
                                 <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * itemCounted.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单价:<%=item.getPrice()%>&nbsp;&nbsp;&nbsp;&nbsp;库存数:<%=item.getCount()%>&nbsp;&nbsp;&nbsp;&nbsp;已上架:<%=item.isEnable()?"是":"否"%></p>
                                 </div>
-                                <div class="time">
-                                    <form action="modifyShopCart.jsp">
-                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
-                                        <label>数量</label>
-                                        <input type="number" step="1" min="1" name="count" value="<%=itemCounted.getCount()%>" placeholder="<%=itemCounted.getCount()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
-                                        <input type="submit" class="time" value="保存">
-                                    </form>
-                                </div>
-                                <div>
-                                    <form action="delFromShopCart.jsp">
-                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
-                                        <input type="submit" class="time" value="移除">
-                                    </form>
-                                </div>
+                                <div class="time"><a href="del.jsp?type=item&id=<%=item.getId()%>&originUrl=/Admin/itemManager.jsp">删除</a></div>
+                                <div class="time" style="right:70px"><a href="itemInfo.jsp?itemId=<%=item.getId()%>">修改</a></div>
                             </li>
                             <%
-                            }
-                        }
-                    %>
+                                    }
+                                }
+                            %>
                         </ul>
                     </div>
                 </div>
@@ -370,3 +352,4 @@
 </body>
 
 </html>
+

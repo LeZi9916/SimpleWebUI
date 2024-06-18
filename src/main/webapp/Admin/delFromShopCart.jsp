@@ -1,12 +1,7 @@
-<%@ page import="com.simple.webui.homework.User" %>
-<%@ page import="com.simple.webui.homework.Methods" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="com.simple.webui.homework.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    if(session.getAttribute("originUrl") == null)
-    {
-        session.setAttribute("originUrl",request.getParameter("originUrl"));
-        session.setAttribute("itemId",request.getParameter("itemId"));
-    }
     User operator = null;
     User user = null;
     Object _userId = session.getAttribute("userId");
@@ -28,4 +23,28 @@
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/Admin/delFromShopCart.jsp");
         return;
     }
+    String originUrl = (String) session.getAttribute("originUrl");
+    String _itemId = (String) session.getAttribute("itemId");
+
+    if(Methods.stringIsEmptyOrNull(originUrl))
+        originUrl = request.getParameter("originUrl");
+    if(Methods.stringIsEmptyOrNull(_itemId))
+        _itemId = request.getParameter("itemId");
+
+
+    if(Methods.stringIsEmptyOrNull(originUrl))
+        originUrl = "/Admin/userShopCart.jsp";
+    if (Methods.stringIsEmptyOrNull(_itemId))
+    {
+        response.sendRedirect(request.getContextPath() + originUrl);
+        return;
+    }
+    long itemId = Long.parseLong(_itemId);
+    Connection dbSession = Methods.checkDbAlive(application);
+    ShopCart shopCart = ShopCart.deserialize(dbSession, operator.getId());
+    Long[] items = shopCart.getBoxedItems();
+    Long[] newItems = CollectionHelper.Where(items,i -> i != itemId,new Long[0]);
+    shopCart.setItems(newItems);
+    shopCart.update(dbSession);
+    response.sendRedirect(request.getContextPath() + originUrl);
 %>

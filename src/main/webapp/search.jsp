@@ -135,7 +135,10 @@
         <div class="gb_Dd gb_gb gb_rd lJ9FBc" style="padding-top:20px">
             <%
                 Object _userId = session.getAttribute("userId");
-                if(_userId != null)
+                boolean isLogin = _userId != null &&
+                        (String) application.getAttribute(((Long)_userId).toString()) != null &&
+                        ((String) application.getAttribute(((Long)_userId).toString())).equals(session.getId());
+                if(isLogin)
                 {
             %>
             <div class="gb_Vd">

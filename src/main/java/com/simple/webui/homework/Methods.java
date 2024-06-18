@@ -72,6 +72,26 @@ public final class Methods
                 return "Unknown";
         }
     }
+    public static  String getOrderStateStr(int orderStr)
+    {
+        switch (orderStr)
+        {
+            case 0:
+                return "未发货";
+            case 1:
+                return "已发货";
+            case 2:
+                return "运输中";
+            case 3:
+                return "已送达";
+            case 4:
+                return "已签收";
+            case 5:
+                return "已取消";
+            default:
+                return "Unknown";
+        }
+    }
     public static Connection ConnectDb() throws SQLException, ClassNotFoundException
     {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -81,10 +101,11 @@ public final class Methods
     {
         try
         {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection dbSession = (Connection) application.getAttribute("dbSession");
             if(dbSession == null || dbSession.isClosed())
             {
-                dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db, Info.Username, Info.Password);
+                dbSession = DriverManager.getConnection("jdbc:mysql://" + Info.SqlAddress + ":3306/" + Info.Db+"?autoReconnect=true", Info.Username, Info.Password );
                 application.setAttribute("dbSession",dbSession);
             }
             return dbSession;

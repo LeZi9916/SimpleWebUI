@@ -100,18 +100,21 @@
 <body>
 <div class="L3eUgb">
     <div class="gb_qa gb_md gb_ib gb_i gb_Qc gb_2c" id="gb" style="background-color:rgba(32,33,36,1)">
-        <div class="gb_Dd gb_gb gb_rd">
-            <div></div>
-            <div class="gb_Vd" style="padding-top:20px">
+        <div class="gb_Dd gb_gb gb_rd lJ9FBc" style="padding-top:20px">
+            <%
+                Object _userId = session.getAttribute("userId");
+                boolean isLogin = _userId != null &&
+                        (String) application.getAttribute(((Long)_userId).toString()) != null &&
+                        ((String) application.getAttribute(((Long)_userId).toString())).equals(session.getId());
+                if(isLogin)
+                {
+            %>
+            <div class="gb_Vd">
                 <div class="gb_b gb_x gb_4f gb_K">
                     <div class="gb_f gb_fb gb_4f gb_K">
                         <%
-                            Object _userId = session.getAttribute("userId");
-                            String imgPath = "pic/0.jpg";
                             User user = (User) session.getAttribute("user");
-                            if(user != null)
-                                imgPath = "pic/" + user.getPicId() + ".jpg";
-
+                            String imgPath = "pic/" + user.getPicId() + ".jpg";
                         %>
                         <a class="gb_d gb_Ja gb_K" href="Admin/index.jsp">
                             <img class="gb_o gbii" src="<%=imgPath%>">
@@ -119,6 +122,18 @@
                     </div>
                 </div>
             </div>
+            <%
+            }
+            else
+            {
+            %>
+            <form action="Admin/login.jsp">
+                <input type="hidden" name="originUrl" value="/">
+                <input type="submit" value="登录">
+            </form>
+            <%
+                }
+            %>
         </div>
     </div>
     <div class="o3j99 LLD4me LS8OJ">
