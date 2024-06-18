@@ -47,6 +47,24 @@ public final class CollectionHelper
         counted.forEach((k,v) -> result.add(new Counting<TElement>(k,v)));
         return (Counting<TElement>[]) result.toArray(new Counting[0]);
     }
+    public static<TIn,TOut> Counting<TOut>[] Count(TIn[] array,IMatcher<TIn,TOut> matcher,Counting<TOut>[] tempArray)
+    {
+        Map<TOut, Long> counted = new HashMap<>();
+        for (TIn element:array)
+        {
+            TOut key = matcher.Compare(element);
+            if(!counted.containsKey(key))
+                counted.put(key, 1L);
+            else
+            {
+                long count = counted.get(key);
+                counted.replace(key, ++count);
+            }
+        }
+        List<Counting<TOut>> result = new ArrayList<>();
+        counted.forEach((k,v) -> result.add(new Counting<TOut>(k,v)));
+        return result.toArray(tempArray);
+    }
     public static<TElement> TElement[] Where(TElement[] array,
                                              IMatcher<TElement,Boolean> matcher,
                                              TElement[] tempArray)
@@ -56,6 +74,14 @@ public final class CollectionHelper
             if(matcher.Compare(element))
                 result.add(element);
         return result.toArray(tempArray);
+    }
+    public static<TElement> TElement Find(TElement[] array,
+                                          IMatcher<TElement,Boolean> matcher)
+    {
+        for (TElement element:array)
+            if(matcher.Compare(element))
+                return element;
+        return null;
     }
     public static<TElement> TElement[] Where(List<TElement> array,
                                              IMatcher<TElement,Boolean> matcher,

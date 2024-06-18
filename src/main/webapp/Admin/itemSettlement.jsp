@@ -1,7 +1,8 @@
-<%@ page import="com.simple.webui.homework.*" %>
 <%@ page import="java.sql.Connection" %>
+<%@ page import="com.simple.webui.homework.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Random" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     User user = null;
@@ -22,11 +23,88 @@
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         return;
     }
+
     Connection dbSession = Methods.checkDbAlive(application);
-    UserOrder[] sourceOrders = UserOrder.getSourceOrders(dbSession,user.getId());
-    Grouping<Integer,UserOrder>[] sourceOrderGroups = CollectionHelper.GroupBy(sourceOrders,o -> o.getState(),new UserOrder[0]);
-    UserOrder[] pendingOrders = UserOrder.getTargetOrders(dbSession,user.getId());
-    long count = sourceOrders.length + pendingOrders.length;
+    String type = request.getParameter("type");
+    ShopCart shopCart = ShopCart.deserialize(dbSession, user.getId());
+    Counting<Long>[] countedShopCart = CollectionHelper.Count(shopCart.getBoxedItems());
+    UserOrder[] orders = new UserOrder[0];
+
+    long rdNum = new Random().nextLong();
+
+    if(Methods.stringIsEmptyOrNull(type))
+    {
+        response.sendRedirect(request.getContextPath() + "/Admin/userShopCart.jsp");
+        return;
+    }
+    if(type.equals("single"))
+    {
+        String _itemId = request.getParameter("itemId");
+        if(Methods.stringIsEmptyOrNull(_itemId))
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/userShopCart.jsp");
+            return;
+        }
+        long itemId = Long.parseLong(_itemId);
+        Item item = Item.deserialize(dbSession,itemId);
+
+        long orderId = Methods.generateOrderId(dbSession);
+        long source = user.getId();
+        long target = item.getParentId();
+        Counting<Long> result = CollectionHelper.Find(countedShopCart,c -> c.getKey() == itemId);
+        if(result == null)
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/userShopCart.jsp");
+            return;
+        }
+        int count = (int)result.getCount();
+        orders = new UserOrder[]
+                {
+                    new UserOrder(orderId,source,target,itemId,count,"")
+                };
+    }
+    else if(type.equals("group"))
+    {
+        List<UserOrder> _orders = new ArrayList<>();
+        String _parentId = request.getParameter("parentId");
+        if(Methods.stringIsEmptyOrNull(_parentId))
+        {
+            response.sendRedirect(request.getContextPath() + "/Admin/userShopCart.jsp");
+            return;
+        }
+        long parentId = Long.parseLong(_parentId);
+        Item[] _result = CollectionHelper.Select(shopCart.getBoxedItems(), i -> Item.deserialize(dbSession,i),new Item[0]);
+        Item[] result = CollectionHelper.Where(_result,i -> i.getParentId() == parentId,new Item[0]);
+        for(Item item : result)
+        {
+            long orderId = 0;
+            while(true)
+            {
+                long _orderId = Methods.generateOrderId(dbSession);
+                if(CollectionHelper.Find(_orders.toArray(new UserOrder[0]),o -> o.getId() == _orderId) == null)
+                {
+                    orderId = _orderId;
+                    break;
+                }
+            }
+            Counting<Long> counted = CollectionHelper.Find(countedShopCart,c -> c.getKey() == item.getId());
+            if(counted == null ||
+                    CollectionHelper.Find(_orders.toArray(new UserOrder[0]),o -> o.getItemId() == item.getId()) != null)
+                continue;
+            int count = (int)counted.getCount();
+            long source = user.getId();
+            long target = item.getParentId();
+            _orders.add(new UserOrder(orderId,source,target,item.getId(),count,""));
+        }
+        orders = _orders.toArray(new UserOrder[0]);
+    }
+    if(orders.length == 0)
+    {
+        response.sendRedirect(request.getContextPath() + "/Admin/userShopCart.jsp");
+        return;
+    }
+    session.setAttribute("rdNum",rdNum);
+    session.setAttribute("pendingOrders",orders);
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -308,32 +386,23 @@
         <div id="main" class="clear" style="min-width: 1060px; overflow-x: auto;">
             <div class="main task-list">
                 <div class="top-back">
-                    <h2 id="classObjName" tabindex="16">我的订单(<%=count%>)</h2>
+                    <h2 id="classObjName" tabindex="16">结算</h2>
                 </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
                 <div class="has-content" style="">
                     <div class="bottomList">
                         <%
-                            for (Grouping<Integer,UserOrder> orderGroup: sourceOrderGroups)
+                            Grouping<Long,UserOrder>[] grouped = CollectionHelper.GroupBy(orders,o -> o.getTarget(),new UserOrder[0]);
+                            for (Grouping<Long,UserOrder> orderGroup: grouped)
                             {
                                 UserOrder[] userOrders = orderGroup.getItems();
-                                String stateStr = Methods.getOrderStateStr(orderGroup.getKey());
-                                Grouping<Long,UserOrder>[] orderGroups = CollectionHelper.GroupBy(userOrders,o -> o.getTarget(),new UserOrder[0]);
+                                User parent = User.deserialize(dbSession,orderGroup.getKey());
                         %>
-                        <div tabindex="18" class="status"><%=stateStr%>(<%=userOrders.length%>)</div>
+                        <div tabindex="18" class="status"><%=parent.getName()%>(<%=userOrders.length%>)</div>
                         <ul>
                             <%
-                                for (Grouping<Long,UserOrder> group: orderGroups)
-                                {
-                                    //商家ID
-                                    Long parentId = group.getKey();
-                                    UserOrder[] orders = group.getItems();
-                                    User parent = User.deserialize(dbSession,parentId);
-                            %>
-                            <div tabindex="18" class="status"><%=parent.getName()%></div>
-                            <%
-                                for (UserOrder order :orders)
+                                for (UserOrder order: userOrders)
                                 {
                                     Item item = Item.deserialize(dbSession,order.getItemId());
                             %>
@@ -343,58 +412,27 @@
                                     <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * order.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
                                 </div>
                                 <div class="time" style="right: 1400px;font-size: 16px">
-                                    <label >数量: <%=order.getCount()%></label>
-                                </div>
-                                <div>
-                                    <form action="delFromShopCart.jsp">
-                                        <input type="hidden" name="orderId" value="<%=order.getId()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/myOrder.jsp">
-                                        <input type="submit" class="time" value="取消订单">
-                                    </form>
-                                </div>
-                            </li>
-                            <%
-                                }
-                            %>
-                            <%
-                                }
-                            %>
-                        </ul>
-                        <%
-                            }
-                            if(pendingOrders.length != 0)
-                            {
-                        %>
-                        <div tabindex="18" class="status">待处理(<%=pendingOrders.length%>)</div>
-                        <ul>
-                            <li>
-                                <%
-                                    for (UserOrder order:pendingOrders)
-                                    {
-                                        Item item = Item.deserialize(dbSession,order.getItemId());
-                                %>
-                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
-                                <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * order.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                                </div>
-                                <div class="time" style="right: 1400px;font-size: 16px">
                                     <label>数量: <%=order.getCount()%></label>
                                 </div>
-                                <div>
-                                    <form action="delFromShopCart.jsp">
-                                        <input type="hidden" name="orderId" value="<%=order.getId()%>">
-                                        <input type="hidden" name="originUrl" value="/Admin/myOrder.jsp">
-                                        <input type="submit" class="time" value="发货">
-                                    </form>
-                                </div>
-                                <%
-                                    }
-                                %>
                             </li>
+                            <%
+                                }
+                            %>
                         </ul>
                         <%
                             }
                         %>
+                    </div>
+                    <div style="display: flex; justify-content: center; align-items: center;height: 300px">
+                        <form action="doSettle.jsp">
+                            <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
+                            <input type="hidden" name="rdNum" value="<%=rdNum%>">
+                            <label style="font-size: 16px">收货地址:
+                                <input type="text" name="address" style="font-size: 16px;" size="50" placeholder="请输入收货地址" required>
+                            </label>
+                            <p></p>
+                            <input type="submit" style="font-size: 18px" value="购买">
+                        </form>
                     </div>
                 </div>
             </div>

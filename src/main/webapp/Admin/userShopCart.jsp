@@ -326,7 +326,14 @@
                             Long[] shopCartItemId = CollectionHelper.Select(group.getItems(),x -> x.getId(),new Long[0]);
                             Counting<Long>[] itemsCounted = CollectionHelper.Count(shopCartItemId);
                             %>
-                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=itemsCounted.length%>)</div>
+                        <div tabindex="18" class="status"><%=merchant.getName()%>(<%=itemsCounted.length%>)
+                            <form action="itemSettlement.jsp" style="display: inline">
+                                <input type="hidden" name="parentId" value="<%=merchant.getId()%>">
+                                <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
+                                <input type="hidden" name="type" value="group">
+                                <input type="submit" class="time" value="全部结算">
+                            </form>
+                        </div>
                         <ul>
                             <%
                             for (Counting<Long> itemCounted: itemsCounted)
@@ -338,13 +345,21 @@
                                 <div class="right-content">
                                     <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * itemCounted.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
                                 </div>
-                                <div class="time">
+                                <div class="time" style="margin-right:30px">
                                     <form action="modifyShopCart.jsp">
                                         <input type="hidden" name="itemId" value="<%=item.getId()%>">
                                         <label>数量</label>
                                         <input type="number" step="1" min="1" name="count" value="<%=itemCounted.getCount()%>" placeholder="<%=itemCounted.getCount()%>">
                                         <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
                                         <input type="submit" class="time" value="保存">
+                                    </form>
+                                </div>
+                                <div>
+                                    <form action="itemSettlement.jsp">
+                                        <input type="hidden" name="itemId" value="<%=item.getId()%>">
+                                        <input type="hidden" name="originUrl" value="/Admin/userShopCart.jsp">
+                                        <input type="hidden" name="type" value="single">
+                                        <input type="submit" class="time" style="margin-right:30px" value="结算">
                                     </form>
                                 </div>
                                 <div>

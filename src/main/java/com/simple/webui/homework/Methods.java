@@ -40,6 +40,24 @@ public final class Methods
             catch (Exception ignored) {   }
         }
     }
+    public static long generateOrderId(Connection dbSession)
+    {
+        Random rd = new Random();
+        while(true)
+        {
+            long id = rd.nextInt();
+            if(id < 0)
+                continue;
+            try
+            {
+                ResultSet result = dbSession.prepareStatement("SELECT * FROM UserOrder WHERE id=" + id)
+                        .executeQuery();
+                if(!result.isBeforeFirst())
+                    return id;
+            }
+            catch (Exception ignored) {   }
+        }
+    }
     public static long generateItemId(Connection dbSession)
     {
         Random rd = new Random();
