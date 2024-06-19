@@ -165,7 +165,7 @@
                     </div>
                     <div class="FPdoLc lJ9FBc">
                         <center>
-                            <input class="gNO89b" value="点击搜索" name="btnK" type="submit">
+                            <input class="gNO89b" value="点击搜索" type="submit">
                         </center>
                     </div>
                 </div>

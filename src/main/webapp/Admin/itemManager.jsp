@@ -23,6 +23,11 @@
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         return;
     }
+    if(!user.checkPermission(UserType.MERCHANT))
+    {
+        response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+        return;
+    }
     Connection dbSession = Methods.checkDbAlive(application);
     Item[] allItem = Methods.getAllItem(dbSession,user.getId());
     Grouping<Boolean,Item>[] grouped = CollectionHelper.GroupBy(allItem, i -> i.isEnable(), new Item[0]);
@@ -121,7 +126,7 @@
     <link href="./index_files/header.css" type="text/css" rel="stylesheet">
     <div class="Header">
         <div class="Logo fl">
-            <a href="">
+            <a href="/">
                 <p style="font-size:20px;font-weight: bold">Neko WebUI</p>
             </a>
         </div>

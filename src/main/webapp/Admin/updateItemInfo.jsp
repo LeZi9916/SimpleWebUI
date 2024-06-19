@@ -114,7 +114,7 @@
         long itemId = Long.parseLong(_itemId);
         Double price = Methods.stringIsEmptyOrNull(_price) ? null: Double.parseDouble(_price);
         Integer count = Methods.stringIsEmptyOrNull(_count) ? null : Integer.parseInt(_count);
-        Boolean enable = Methods.stringIsEmptyOrNull(_count) ? null : Boolean.parseBoolean(_enable);
+        Boolean enable = Methods.stringIsEmptyOrNull(_enable) ? null : Boolean.parseBoolean(_enable);
 
         if(isCreate)
             targetItem = new Item(itemId,name,count,price,0, operator.getId(),enable);

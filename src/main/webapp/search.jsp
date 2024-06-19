@@ -8,27 +8,47 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String keyword = request.getParameter("keyword");
-    if(Methods.stringIsEmptyOrNull(keyword))
+    String _merchantId = request.getParameter("merchantId");
+
+    if(Methods.stringIsEmptyOrNull(keyword) && Methods.stringIsEmptyOrNull(_merchantId))
     {
         response.sendRedirect(request.getContextPath() + "/index.jsp");
         return;
     }
     Connection dbSession = Methods.checkDbAlive(application);
     Item[] items = Methods.getAllItem(dbSession);
-    Counting<Item>[] result = CollectionHelper.Select(items,
-            i ->
-            {
-                int count = 0;
-                for (Character s:i.getItemName().toCharArray())
+    Counting<Item>[] result = new Counting[0];
+    if(Methods.stringIsEmptyOrNull(_merchantId))
+    {
+        result = CollectionHelper.Select(items,
+                i ->
                 {
-                    if(keyword.contains(Character.toString(s)))
-                        count++;
-                }
-                return new Counting<Item>(i,count);
-            },
-            new Counting[0]);
-    result = CollectionHelper.Where(result,i -> i.getCount() > 0,new Counting[0]);
-    Arrays.stream(result).sorted((u1, u2) -> Long.compare(u1.getCount(),u2.getCount()));
+                    int count = 0;
+                    for (Character s:i.getItemName().toCharArray())
+                    {
+                        if(keyword.contains(Character.toString(s)))
+                            count++;
+                    }
+                    return new Counting<Item>(i,count);
+                },
+                new Counting[0]);
+        result = CollectionHelper.Where(result,i -> i.getCount() > 0,new Counting[0]);
+        Arrays.stream(result).sorted((u1, u2) -> Long.compare(u1.getCount(),u2.getCount()));
+    }
+    else
+    {
+        long merchantId = Long.parseLong(_merchantId);
+        User merchant = User.deserialize(dbSession,merchantId);
+
+        if(merchant == null || !merchant.checkPermission(UserType.MERCHANT))
+            result = new Counting[0];
+        else
+        {
+            Item[] _result = CollectionHelper.Where(items,i -> i.getParentId() == merchantId,new Item[0]);
+            result = CollectionHelper.Count(_result);
+        }
+
+    }
 
 
 %>
@@ -219,6 +239,8 @@
                         for (Counting<Item> counting: result)
                         {
                             Item item = counting.getKey();
+                            if(!item.isEnable())
+                                continue;
                     %>
                     <div style="display: flex; padding: 10px; width: 80%; margin: auto;" id="<%=item.getId()%>">
                         <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
@@ -227,7 +249,7 @@
                         <div style="flex: 2; padding-left: 20px;">
                             <h2 style="margin: 0; padding: 5px 0;"><%=item.getItemName()%></h2>
                             <h3 style="margin: 0; padding: 5px 0;"><%=item.getPrice()%> CNY</h3>
-                            <p style="margin: 0; padding: 5px 0;">商家: <%=User.deserialize(Methods.checkDbAlive(application),item.getParentId()).getName()%></p>
+                            <p style="margin: 0; padding: 5px 0;">商家: <a href="search.jsp?merchantId=<%=item.getParentId()%>"><%=User.deserialize(Methods.checkDbAlive(application),item.getParentId()).getName()%></a> </p>
                             <p style="margin: 0; padding: 5px 0;">库存<%=item.getCount()%>件</p>
                             <p></p>
                             <form action="Admin/add2shopcart.jsp">

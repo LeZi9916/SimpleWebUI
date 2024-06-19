@@ -8,12 +8,17 @@
 <%@ page import="com.simple.webui.homework.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-
+    boolean isCreate = false;
     try
     {
         String name = request.getParameter("name");
         String pwd = request.getParameter("password");
         String rePwd = request.getParameter("rePassword");
+        String _isCreate = request.getParameter("isCreate");
+
+
+        if(!Methods.stringIsEmptyOrNull(_isCreate))
+            isCreate = Boolean.parseBoolean(_isCreate);
 
         if(name != null &&
            pwd != null &&
@@ -32,9 +37,14 @@
                 long id = generateUserId(dbSession);
                 String hash = User.getStrHash(pwd);
                 User newUser = new User(id,name,null,hash,0,0);
-                newUser.update(session,application);
                 newUser.update(dbSession);
-                response.sendRedirect(request.getContextPath() + "/Admin/success.jsp");
+                if(!isCreate)
+                {
+                    newUser.update(session,application);
+                    response.sendRedirect(request.getContextPath() + "/Admin/success.jsp");
+                }
+                else
+                    response.sendRedirect(request.getContextPath() + "/Admin/userlist.jsp");
                 return;
             }
         }
@@ -240,6 +250,7 @@ document.body.className = document.body.className.replace('no-js', 'js');
         Register
     </h1>
     <form name="loginform" id="loginform" action="register.jsp" method="post">
+        <input type="hidden" name="isCreate" value="<%=isCreate%>">
         <p>
             <label for="user_login">用户昵称</label>
             <input type="text" name="name" id="user_login" class="input" value="" size="20" autocapitalize="off"

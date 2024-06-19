@@ -23,6 +23,11 @@
         response.sendRedirect(request.getContextPath() + "/Admin/login.jsp");
         return;
     }
+    if(!user.checkPermission(UserType.ADMIN))
+    {
+        response.sendRedirect(request.getContextPath() + "/Admin/index.jsp");
+        return;
+    }
     Connection dbSession = Methods.checkDbAlive(application);
     User[] allUser = Methods.getAllUser(dbSession);
     Grouping<Integer,User>[] grouped = CollectionHelper.GroupBy(allUser,u -> u.getUserType(), new User[0]);
@@ -121,7 +126,7 @@
     <link href="./index_files/header.css" type="text/css" rel="stylesheet">
     <div class="Header">
         <div class="Logo fl">
-            <a href="">
+            <a href="/">
                 <p style="font-size:20px;font-weight: bold">Neko WebUI</p>
             </a>
         </div>
@@ -308,6 +313,7 @@
             <div class="main task-list">
                 <div class="top-back">
                     <h2 id="classObjName" tabindex="16">用户列表(<%=allUser.length%>)</h2>
+                    <p style="font-size: 20px"><a href="register.jsp?isCreate=true">新建用户</a></p>
                 </div>
                 <div id="loadingD" style="position: absolute; top: calc(46% - 10px); left: calc(50% - 50px); display: none;"><img src="./loading2.gif"></div>
                 <div tabindex="17" class="null-data" style="display: none;">no Task</div>
@@ -332,9 +338,11 @@
                                 <div class="time"><a href="del.jsp?type=user&id=<%=_user.getId()%>&originUrl=/Admin/userlist.jsp">删除</a></div>
                                 <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=_user.getId()%>">修改</a></div>
                             </li>
-                        </ul>
                         <%
                                 }
+                        %>
+                        </ul>
+                        <%
                             }
                         %>
                     </div>

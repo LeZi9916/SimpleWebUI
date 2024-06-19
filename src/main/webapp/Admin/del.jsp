@@ -14,7 +14,17 @@
             PreparedStatement state = dbSession.prepareStatement("DELETE FROM User WHERE id = ?");
             state.setLong(1,userId);
 
-            return state.executeUpdate() > 0;
+            int a = state.executeUpdate();
+            state = dbSession.prepareStatement("DELETE FROM UserOrder WHERE source = ?");
+            state.setLong(1,userId);
+            state.executeUpdate();
+            state = dbSession.prepareStatement("DELETE FROM ShopCart WHERE id = ?");
+            state.setLong(1,userId);
+            state.executeUpdate();
+            state = dbSession.prepareStatement("DELETE FROM Item WHERE parentId = ?");
+            state.setLong(1,userId);
+            state.executeUpdate();
+            return a > 0;
         }
         catch(Exception e)
         {
@@ -80,7 +90,10 @@
                     }
                     if(delUser(dbSession,id))
                     {
-                        response.sendRedirect(request.getContextPath() + "/Admin/logout.jsp");
+                        if(id == operator.getId())
+                            response.sendRedirect(request.getContextPath() + "/Admin/logout.jsp");
+                        else
+                            response.sendRedirect(request.getContextPath() + originUrl);
                         return;
                     }
                 }

@@ -200,7 +200,7 @@
     <link href="./index_files/header.css" type="text/css" rel="stylesheet">
     <div class="Header">
         <div class="Logo fl">
-            <a href="">
+            <a href="/">
                 <p style="font-size:20px;font-weight: bold">Neko WebUI</p>
             </a>
         </div>

@@ -138,7 +138,7 @@
     <link href="./index_files/header.css" type="text/css" rel="stylesheet">
     <div class="Header">
         <div class="Logo fl">
-            <a href="">
+            <a href="/">
                 <p style="font-size:20px;font-weight: bold">Neko WebUI</p>
             </a>
         </div>
@@ -146,10 +146,10 @@
             <a href="userInfo.jsp">
                 <div class="loginAfter fr">
 							<span class="headPic fl">
-								<img width="100%" height="100%" src="<%=request.getContextPath() + "/pic/" + user.getPicId() + ".jpg"%>">
+								<img width="100%" height="100%" src="<%=request.getContextPath() + "/pic/" + operator.getPicId() + ".jpg"%>">
 							</span>
                     <div class="name fl">
-                        <p><%= user.getName()%></p>
+                        <p><%= operator.getName()%></p>
                     </div>
                 </div>
             </a>
@@ -231,7 +231,7 @@
                     </li>
                 </ul>
                 <%
-                    if(user.checkPermission(UserType.MERCHANT))
+                    if(operator.checkPermission(UserType.MERCHANT))
                     {
                 %>
                 <ul>
@@ -253,7 +253,7 @@
                     }
                 %>
                 <%
-                    if(user.checkPermission(UserType.ADMIN))
+                    if(operator.checkPermission(UserType.ADMIN))
                     {
                 %>
                 <ul>
