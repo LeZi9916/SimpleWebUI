@@ -25,7 +25,7 @@
     Connection dbSession = Methods.checkDbAlive(application);
     UserOrder[] sourceOrders = UserOrder.getSourceOrders(dbSession,user.getId());
     Grouping<Integer,UserOrder>[] sourceOrderGroups = CollectionHelper.GroupBy(sourceOrders,o -> o.getState(),new UserOrder[0]);
-    UserOrder[] pendingOrders = UserOrder.getTargetOrders(dbSession,user.getId());
+    UserOrder[] pendingOrders = CollectionHelper.Where(UserOrder.getTargetOrders(dbSession,user.getId()),o -> o.getState() != OrderState.CANCELED,new UserOrder[0]);
     long count = sourceOrders.length + pendingOrders.length;
 %>
 <!DOCTYPE html>
@@ -346,11 +346,18 @@
                                     <label >数量: <%=order.getCount()%></label>
                                 </div>
                                 <div>
-                                    <form action="delFromShopCart.jsp">
+                                    <%
+                                        if(order.getState() != OrderState.CANCELED || order.getState() <= OrderState.TRANSMITTING)
+                                        {
+                                    %>
+                                    <form action="cancelOrder.jsp">
                                         <input type="hidden" name="orderId" value="<%=order.getId()%>">
                                         <input type="hidden" name="originUrl" value="/Admin/myOrder.jsp">
                                         <input type="submit" class="time" value="取消订单">
                                     </form>
+                                    <%
+                                        }
+                                    %>
                                 </div>
                             </li>
                             <%
@@ -367,12 +374,12 @@
                         %>
                         <div tabindex="18" class="status">待处理(<%=pendingOrders.length%>)</div>
                         <ul>
-                            <li>
                                 <%
                                     for (UserOrder order:pendingOrders)
                                     {
                                         Item item = Item.deserialize(dbSession,order.getItemId());
                                 %>
+                            <li>
                                 <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/item/" + item.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
                                     <p class="overHidden2 fl" style="margin-top: 10px;"><%=item.getItemName()%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价格:<%=item.getPrice() * order.getCount()%> CNY&nbsp;&nbsp;&nbsp;&nbsp;</p>
@@ -387,10 +394,10 @@
                                         <input type="submit" class="time" value="发货">
                                     </form>
                                 </div>
+                            </li>
                                 <%
                                     }
                                 %>
-                            </li>
                         </ul>
                         <%
                             }

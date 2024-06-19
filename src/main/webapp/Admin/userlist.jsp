@@ -325,12 +325,12 @@
                                 {
                             %>
                             <li>
-                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/" + user.getPicId() + ".jpg"%>');background-size:contain "></div>
+                                <div class="tag icon-signin-g" style="background:url('<%=request.getContextPath() + "/pic/" + _user.getPicId() + ".jpg"%>');background-size:contain "></div>
                                 <div class="right-content">
-                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=user.getName()%></p>
+                                    <p class="overHidden2 fl" style="margin-top: 10px;"><%=_user.getName()%></p>
                                 </div> <!---->
-                                <div class="time"><a href="del.jsp?type=user&id=<%=user.getId()%>&originUrl=/Admin/userlist.jsp">删除</a></div>
-                                <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=user.getId()%>">修改</a></div>
+                                <div class="time"><a href="del.jsp?type=user&id=<%=_user.getId()%>&originUrl=/Admin/userlist.jsp">删除</a></div>
+                                <div class="time" style="right:70px"><a href="userInfo.jsp?userId=<%=_user.getId()%>">修改</a></div>
                             </li>
                         </ul>
                         <%

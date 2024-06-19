@@ -17,7 +17,6 @@
 <%
     try
     {
-        Class.forName("com.mysql.cj.jdbc.Driver");
         String _id = request.getParameter("userId");
         String pwd = request.getParameter("password");
         if(_id != null && pwd != null)
