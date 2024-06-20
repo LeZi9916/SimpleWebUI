@@ -5,11 +5,9 @@
 <%@ page import="com.simple.webui.homework.ShopCart" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    if(session.getAttribute("originUrl") == null)
-    {
-        session.setAttribute("originUrl",request.getParameter("originUrl"));
-        session.setAttribute("itemId",request.getParameter("itemId"));
-    }
+    session.setAttribute("originUrl",request.getParameter("originUrl"));
+    session.setAttribute("itemId",request.getParameter("itemId"));
+    session.setAttribute("count",request.getParameter("count"));
     User operator = null;
     User user = null;
     Object _userId = session.getAttribute("userId");
@@ -19,7 +17,7 @@
         String sessionId = (String) application.getAttribute(userId);
         if (sessionId == null || !sessionId.equals(session.getId()))
         {
-            response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add2shopcart.jsp");
+            response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/Admin/add2shopcart.jsp");
             return;
         }
         user = User.deserialize(Methods.checkDbAlive(application),Long.parseLong(userId));
@@ -28,13 +26,13 @@
     }
     else
     {
-        response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/add2shopcart.jsp");
+        response.sendRedirect(request.getContextPath() + "/Admin/login.jsp?originUrl=/Admin/add2shopcart.jsp");
         return;
     }
     String _itemId = request.getParameter("itemId");
     String originUrl = request.getParameter("originUrl");
     String _count = request.getParameter("count");
-    long count = Long.parseLong(_count);
+
 
     if(_itemId == null)
         _itemId = (String) session.getAttribute("itemId");
@@ -45,7 +43,9 @@
         response.sendRedirect(request.getContextPath() + "/index.jsp");
         return;
     }
-
+    if(Methods.stringIsEmptyOrNull(_count))
+        _count = (String) session.getAttribute("count");
+    long count = Long.parseLong(_count);
     if(count > 0)
     {
         Connection dbSession = Methods.checkDbAlive(application);
